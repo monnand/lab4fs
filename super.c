@@ -142,6 +142,7 @@ static struct file_system_type lab4fs_fs_type = {
 
 static int __init init_lab4fs_fs(void)
 {
+    LAB4DEBUG("Test: I have been inited\n");
 	return register_filesystem(&lab4fs_fs_type);
 }
 
