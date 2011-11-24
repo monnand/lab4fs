@@ -160,7 +160,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
-        iput(inode);
+        iput(root);
         kfree(sbi);
         return -ENOMEM;
     }
