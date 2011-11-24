@@ -41,6 +41,20 @@ static void print_super(struct lab4fs_super_block *sb)
 #define print_super(sb)
 #endif
 
+static void lab4fs_put_super(struct super_block *sb)
+{
+	struct lab4fs_sb_info *sbi;
+    sbi = LAB4FS_SB(sb);
+    kfree(sbi);
+    return;
+}
+
+struct super_operations lab4fs_super_ops = {
+    .statfs         = simple_statfs,
+    .drop_inode     = generic_delete_inode,
+    .put_super      = lab4fs_put_super,
+};
+
 struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
 {
     struct inode *inode;
@@ -155,7 +169,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		}
 	}
 	sb->s_maxbytes = lab4fs_max_size(es);
-    sb->s_blocksize_bits = sb->s_blocksize << 3;
+    sb->s_blocksize_bits = 10;
 	sbi->s_sbh = bh;
 
     sb->s_root = d_alloc_root(root);
@@ -171,7 +185,7 @@ out_fail:
 	return 0;
 }
 
-struct super_block * lab4fs_get_sb(struct file_system_type *fs_type,
+struct super_block *lab4fs_get_sb(struct file_system_type *fs_type,
         int flags, const char *dev_name, void *data)
 {
 	return get_sb_bdev(fs_type, flags, dev_name, data, lab4fs_fill_super);

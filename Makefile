@@ -4,4 +4,4 @@
 
 obj-$(CONFIG_LAB4_FS) += lab4fs.o
 
-lab4fs-objs := super.o
+lab4fs-objs := lab4fs.o

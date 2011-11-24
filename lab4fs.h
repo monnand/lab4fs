@@ -34,5 +34,10 @@ struct lab4fs_sb_info {
 	unsigned s_inodes_count;
 };
 
+static inline struct lab4fs_sb_info *LAB4FS_SB(struct super_block *sb)
+{
+    return sb->s_fs_info;
+}
+
 #endif
 
