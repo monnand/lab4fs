@@ -32,10 +32,10 @@
 #ifdef CONFIG_LAB4FS_DEBUG
 static void print_super(struct lab4fs_super_block *sb)
 {
-    LAB4DEBUG("Number of blocks: %u\n", le32_to_cpu(sb->s_blocks_count));
-    LAB4DEBUG("Block size: %u\n", le32_to_cpu(sb->s_block_size));
-    LAB4DEBUG("Number of inodes: %u\n", le32_to_cpu(sb->s_inodes_count));
-    LAB4DEBUG("inode size: %u\n", le32_to_cpu(sb->s_inode_size));
+    LAB4DEBUG("Number of blocks: %lu\n", le32_to_cpu(sb->s_blocks_count));
+    LAB4DEBUG("Block size: %lu\n", le32_to_cpu(sb->s_block_size));
+    LAB4DEBUG("Number of inodes: %lu\n", le32_to_cpu(sb->s_inodes_count));
+    LAB4DEBUG("inode size: %lu\n", le32_to_cpu(sb->s_inode_size));
 }
 #else
 #define print_super(sb)
@@ -84,7 +84,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 	if (!sbi)
 		return -ENOMEM;
     root = lab4fs_get_inode(sb, S_IFDIR | 0755, 0);
-    if (!inode)
+    if (!root)
         return -ENOMEM;
 
 	sb->s_fs_info = sbi;
@@ -106,7 +106,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		logic_sb_block = sb_block;
 	}
 
-    LAB4DEBUG("I will look up the table at block %u, offset %u\n",
+    LAB4DEBUG("I will look up the table at block %lu, offset %lu\n",
             logic_sb_block, offset);
 
 	if (!(bh = sb_bread(sb, logic_sb_block))) {
