@@ -41,6 +41,33 @@ static void print_super(struct lab4fs_super_block *sb)
 #define print_super(sb)
 #endif
 
+struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
+{
+    struct inode *inode;
+
+    inode = new_inode(sb);
+
+    if (inode) {
+        inode->i_mode = mode;
+        inode->i_uid = current->fsuid;
+        inode->i_gid = current->fsgid;
+        inode->i_blocks = 0;
+        inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+
+        switch (mode & S_iFMT) {
+        case S_IFDIR:
+            inode->i_op = &simple_dir_inode_operations;
+            inode->i_nlink++;
+            break;
+        case S_IFREG:
+        default:
+            init_special_inode(inode, mode, dev);
+            break;
+        }
+    }
+    return inode;
+}
+
 static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 {
 	struct buffer_head * bh;
@@ -56,6 +83,9 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
 	if (!sbi)
 		return -ENOMEM;
+    root = lab4fs_get_inode(sb, S_IFDIR | 0755, 0);
+    if (!inode)
+        return -ENOMEM;
 
 	sb->s_fs_info = sbi;
 	memset(sbi, 0, sizeof(*sbi));
@@ -125,7 +155,15 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		}
 	}
 	sb->s_maxbytes = lab4fs_max_size(es);
+    sb->s_blocksize_bits = sb->s_blocksize << 3;
 	sbi->s_sbh = bh;
+
+    sb->s_root = d_alloc_root(root);
+    if (!sb->s_root) {
+        iput(inode);
+        kfree(sbi);
+        return -ENOMEM;
+    }
 
 failed_mount:
 out_fail:
