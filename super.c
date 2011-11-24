@@ -54,7 +54,7 @@ struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
         inode->i_blocks = 0;
         inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
 
-        switch (mode & S_iFMT) {
+        switch (mode & S_IFMT) {
         case S_IFDIR:
             inode->i_op = &simple_dir_inode_operations;
             inode->i_nlink++;
