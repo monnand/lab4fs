@@ -433,6 +433,35 @@ no_data_block:
     return 0;
 }
 
+/* Return 0 on error!!! */
+uint32_t first_free_inode(int fd, struct lab4fs_sb_info *sb)
+{
+    uint8_t *buf;
+    uint32_t offset, block;
+    uint32_t i;
+
+    buf = malloc(sb->block_size);
+
+    offset = 0;
+    for (block = sb->first_inode_bitmap_block;
+            block < sb->first_data_bitmap_block;
+            block++, offset += sb->block_size << 3) {
+        read_block(fd, sb, block, buf);
+        for (i = 0; i < sb->block_size << 3; i++) {
+            if (!bit_test(buf, i)) {
+                if (i + offset >= sb->inode_count)
+                    goto no_inode;
+                free(buf);
+                return i + offset;
+            }
+        }
+    }
+no_inode:
+    free(buf);
+    return 0;
+}
+
+
 int write_data_blocks(int fd, struct lab4fs_sb_info *sb,
         uint32_t block, uint32_t n, void *data)
 {
