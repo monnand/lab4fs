@@ -69,7 +69,7 @@ struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
         inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
         inode->i_sb = sb;
 
-        LAB4DEBUG("inode mode: %lu\n", inode->i_mode);
+        LAB4DEBUG("inode mode: %u\n", inode->i_mode);
 
         switch (mode & S_IFMT) {
         case S_IFDIR:

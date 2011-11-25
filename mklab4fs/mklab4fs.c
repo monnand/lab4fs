@@ -114,7 +114,7 @@ struct lab4fs_sb_info *get_sb(unsigned long nr_blks, unsigned long blk_size)
     /* Number of bytes for inode bitmap */
     i = sb->inode_count >> 3;
     sb->inode_count = i << 3;
-    sb->free_inode_count = sb->inode_count;
+    sb->free_inode_count = sb->inode_count - LAB4FS_FIRST_INO;
 
     /* Number of blocks for inode bitmap */
     j = (i % sb->block_size) ? 1 : 0;
