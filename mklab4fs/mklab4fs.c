@@ -521,7 +521,7 @@ int write_inode(int fd, struct lab4fs_sb_info *sb,
      * We have to choose another one as counter for loop.
      */
     for (offset = 0; offset < LAB4FS_N_BLOCKS; offset++)
-        write2buf32(inode->i_block[block], buf, i);
+        write2buf32(inode->i_block[offset], buf, i);
     write_blocks(fd, sb, block, 1, buf);
     free(buf);
 }
@@ -534,11 +534,13 @@ int write_inode_block_table(int fd, struct lab4fs_sb_info *sb,
     uint32_t i;
     uint32_t *buf;
 
+    memset(inode->i_block, 0, 4 * LAB4FS_N_BLOCKS);
     for (i = 0; i < MIN(nr_blocks, LAB4FS_NDIR_BLOCKS); i++)
         inode->i_block[i] = htole32(selected_blocks[i]);
 
     if (nr_blocks > LAB4FS_NDIR_BLOCKS) {
         buf = (uint32_t *)malloc(sb->block_size);
+        memset(buf, 0, sb->block_size);
         nr_blocks -= LAB4FS_NDIR_BLOCKS;
         selected_blocks = &selected_blocks[LAB4FS_NDIR_BLOCKS];
         for (i = 0; i < MIN(nr_blocks, sb->block_size >> 2); i++)
@@ -596,7 +598,8 @@ int write_root_dir(int fd, struct lab4fs_sb_info *sb)
     }
     inode.i_atime = inode.i_ctime = inode.i_mtime =  0;
     inode.i_links_count = 2;
-    inode.i_size = sb->block_size;
+    inode.i_size = 2;
+    inode.i_blocks = 1;
 
     write_to_free_data_blocks(fd, sb, 1, buf, &block); 
     write_inode_block_table(fd, sb, &inode, &block, 1);
@@ -630,10 +633,10 @@ int main(int argc, char *argv[])
 
     sb = get_sb(nr_blks, blk_size);
 
-    write_super_block(fd, sb);
     write_data_bitmap(fd, sb);
     write_inode_bitmap(fd, sb);
 
     write_root_dir(fd, sb);
+    write_super_block(fd, sb);
     return 0;
 }
