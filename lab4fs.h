@@ -5,6 +5,8 @@
 #include <linux/ext2_fs.h>
 
 #define LAB4FS_SUPER_MAGIC	0x1ab4f5 /* lab4fs */
+#define LAB4BAD_INO         0
+#define LAB4FS_ROOT_INO     1
 
 #define LAB4FS_DEF_RESUID	0
 #define LAB4FS_DEF_RESGID	0
@@ -17,16 +19,24 @@
 
 struct lab4fs_super_block {
 	__le32 s_magic;
+
 	__le32 s_blocks_count;
 	__le32 s_block_size;
+
 	__le32 s_inodes_count;
 	__le32 s_inode_size;
+
 	__le32 s_first_block;
+
 	__le32 s_inode_bitmap;
 	__le32 s_data_bitmap;
+
 	__le32 s_inode_table;
 	__le32 s_data_blocks;
+
 	__le32 s_root_inode;
+    __le32 s_first_inode;
+
 	__le32 s_free_inode_count;
 	__le32 s_free_data_blocks_count;
 };

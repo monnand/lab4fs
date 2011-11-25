@@ -24,6 +24,9 @@
 
 #endif
 
+#define LAB4FS_ROOT_INO     1
+#define LAB4FS_FIRST_INO    2
+
 static int verbose = 1;
 
 /*
@@ -42,6 +45,7 @@ struct lab4fs_sb_info {
     uint32_t first_inode_block;
     uint32_t first_data_block;
     uint32_t root_inode;
+    uint32_t first_inode;
     uint32_t free_inode_count;
     uint32_t free_data_block_count;
 };
@@ -136,6 +140,8 @@ struct lab4fs_sb_info *get_sb(unsigned long nr_blks, unsigned long blk_size)
     sb->first_data_block =sb->first_inode_block + j;
     sb->free_data_block_count = nr_blks - sb->first_data_block;
     sb->inode_size = INODESIZE;
+    sb->first_inode = LAB4FS_FIRST_INO;
+    sb->root_inode = LAB4FS_ROOT_INO;
     return sb;
 }
 
@@ -190,6 +196,7 @@ int write_super_block(int fd, struct lab4fs_sb_info *sb)
     write2buf32(sb->first_inode_block, buf, i);
     write2buf32(sb->first_data_block, buf, i);
     write2buf32(sb->root_inode, buf, i);
+    write2buf32(sb->first_inode, buf, i);
     write2buf32(sb->free_inode_count, buf, i);
     write2buf32(sb->free_data_block_count, buf, i);
 

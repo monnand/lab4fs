@@ -32,10 +32,10 @@
 #ifdef CONFIG_LAB4FS_DEBUG
 static void print_super(struct lab4fs_super_block *sb)
 {
-    LAB4DEBUG("Number of blocks: %lu\n", le32_to_cpu(sb->s_blocks_count));
-    LAB4DEBUG("Block size: %lu\n", le32_to_cpu(sb->s_block_size));
-    LAB4DEBUG("Number of inodes: %lu\n", le32_to_cpu(sb->s_inodes_count));
-    LAB4DEBUG("inode size: %lu\n", le32_to_cpu(sb->s_inode_size));
+    LAB4DEBUG("Number of blocks: %lu\n", (unsigned long)le32_to_cpu(sb->s_blocks_count));
+    LAB4DEBUG("Block size: %lu\n", (unsigned long)le32_to_cpu(sb->s_block_size));
+    LAB4DEBUG("Number of inodes: %lu\n", (unsigned long)le32_to_cpu(sb->s_inodes_count));
+    LAB4DEBUG("inode size: %lu\n", (unsigned long)le32_to_cpu(sb->s_inode_size));
 }
 #else
 #define print_super(sb)
@@ -63,12 +63,13 @@ struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
 
     if (inode) {
         inode->i_mode = mode;
-        LAB4DEBUG("inode: %lu, mode: %lu\n", inode->ino, inode->mode);
         inode->i_uid = current->fsuid;
         inode->i_gid = current->fsgid;
         inode->i_blocks = 0;
         inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
         inode->i_sb = sb;
+
+        LAB4DEBUG("inode mode: %lu\n", inode->i_mode);
 
         switch (mode & S_IFMT) {
         case S_IFDIR:
@@ -122,7 +123,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		logic_sb_block = sb_block;
 	}
 
-    LAB4DEBUG("I will look up the table at block %lu, offset %lu\n",
+    LAB4DEBUG("I will look up the table at block %lu, offset %u\n",
             logic_sb_block, offset);
 
 	if (!(bh = sb_bread(sb, logic_sb_block))) {
