@@ -578,6 +578,7 @@ int write_inode_block_table(int fd, struct lab4fs_sb_info *sb,
         inode->i_block[LAB4FS_IND_BLOCKS] = i;
         free(buf);
     }
+    inode->i_blocks += nr_blocks;
     return 0;
 }
 
@@ -607,6 +608,7 @@ int write_root_dir(int fd, struct lab4fs_sb_info *sb)
     entry->name_len = 1;
     entry->name[0] = '.';
     entry->file_type = LAB4FS_FT_DIR;
+    inode.i_size = entry->rec_len;
 
     entry = (struct lab4fs_dir_entry *)(buf + entry->rec_len);
     entry->inode = sb->root_inode;
@@ -615,6 +617,7 @@ int write_root_dir(int fd, struct lab4fs_sb_info *sb)
     entry->name[0] = '.';
     entry->name[1] = '.';
     entry->file_type = LAB4FS_FT_DIR;
+    inode.i_size += entry->rec_len;
 
     inode.i_mode = LINUX_S_IFDIR | 0755;
     uid = getuid();
@@ -627,8 +630,7 @@ int write_root_dir(int fd, struct lab4fs_sb_info *sb)
     }
     inode.i_atime = inode.i_ctime = inode.i_mtime =  0;
     inode.i_links_count = 2;
-    inode.i_size = 2;
-    inode.i_blocks = 1;
+    inode.i_blocks = 0;
 
     write_to_free_data_blocks(fd, sb, 1, buf, &block); 
     write_inode_block_table(fd, sb, &inode, &block, 1);
