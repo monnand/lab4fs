@@ -15,7 +15,7 @@
     if (verbose) printf(string, ##args); \
 } while (0)
 
-#define INODESIZE   64
+#define INODESIZE   128
 #define NR_BLKS_PER_FILE    1.0
 
 #ifndef htole32

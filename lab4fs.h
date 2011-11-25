@@ -11,6 +11,10 @@
 
 #define lab4fs_max_size(x)	8192
 
+#define LAB4FS_NDIR_BLOCKS  7
+#define LAB4FS_IND_BLOCKS   8
+#define LAB4FS_N_BLOCKS     8
+
 struct lab4fs_super_block {
 	__le32 s_magic;
 	__le32 s_blocks_count;
@@ -25,6 +29,20 @@ struct lab4fs_super_block {
 	__le32 s_root_inode;
 	__le32 s_free_inode_count;
 	__le32 s_free_data_blocks_count;
+};
+
+struct lab4fs_inode {
+	__le16	i_mode;		/* File mode */
+	__le16	i_uid;		/* Low 16 bits of Owner Uid */
+	__le32	i_size;		/* Size in bytes */
+	__le32	i_atime;	/* Access time */
+	__le32	i_ctime;	/* Creation time */
+	__le32	i_mtime;	/* Modification time */
+	__le32	i_dtime;	/* Deletion Time */
+	__le16	i_gid;		/* Low 16 bits of Group Id */
+	__le16	i_links_count;	/* Links count */
+	__le32	i_blocks;	/* Blocks count */
+	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
 };
 
 struct lab4fs_sb_info {

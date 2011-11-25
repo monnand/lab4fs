@@ -63,10 +63,12 @@ struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
 
     if (inode) {
         inode->i_mode = mode;
+        LAB4DEBUG("inode: %lu, mode: %lu\n", inode->ino, inode->mode);
         inode->i_uid = current->fsuid;
         inode->i_gid = current->fsgid;
         inode->i_blocks = 0;
         inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+        inode->i_sb = sb;
 
         switch (mode & S_IFMT) {
         case S_IFDIR:
