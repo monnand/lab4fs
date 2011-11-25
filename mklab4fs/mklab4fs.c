@@ -209,10 +209,28 @@ int write_data_bitmap(int fd, struct lab4fs_sb_info *sb)
             sb->first_inode_block - sb->first_data_bitmap_block);
 }
 
+#define MSB_MASK    128
+
 int write_inode_bitmap(int fd, struct lab4fs_sb_info *sb)
 {
-    return bzero_blocks(fd, sb, sb->first_inode_bitmap_block,
+    int i, n, offset;
+    uint8_t mask;
+    uint8_t *buf;
+    i = bzero_blocks(fd, sb, sb->first_inode_bitmap_block,
             sb->first_data_bitmap_block - sb->first_inode_bitmap_block);
+    if (i < 0)
+        return i;
+    buf = malloc(sb->block_size);
+    memset(buf, 0, sb->block_size); 
+    for (i = 0; i < sb->first_inode; i++) {
+        n = i >> 3;
+        offset = i % 8;
+        mask = MSB_MASK >> offset;
+        buf[n] = buf[n] | mask;
+    }
+    i = write_blocks(fd, sb, sb->first_inode_bitmap_block, 1, buf);
+    free(buf);
+    return i;
 }
 
 int main(int argc, char *argv[])
