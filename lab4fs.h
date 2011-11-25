@@ -4,6 +4,32 @@
 #include <linux/fs.h>
 #include <linux/ext2_fs.h>
 
+/*      
+ * Ext2 directory file types.  Only the low 3 bits are used.  The
+ * other bits are reserved for now.
+ */     
+#define LAB4FS_FT_UNKNOWN     0
+#define LAB4FS_FT_REG_FILE    1
+#define LAB4FS_FT_DIR     2
+#define LAB4FS_FT_CHRDEV      3
+#define LAB4FS_FT_BLKDEV      4
+#define LAB4FS_FT_FIFO        5
+#define LAB4FS_FT_SOCK        6
+#define LAB4FS_FT_SYMLINK     7
+
+#define LAB4FS_FT_MAX     8
+
+
+/*
+ * EXT2_DIR_PAD defines the directory entries boundaries
+ *
+ * NOTE: It must be a multiple of 4
+ */
+#define EXT2_DIR_PAD            4
+#define EXT2_DIR_ROUND          (EXT2_DIR_PAD - 1)
+#define LAB4FS_DIR_REC_LEN(name_len)  (((name_len) + 8 + EXT2_DIR_ROUND) & \
+                     ~EXT2_DIR_ROUND)
+
 #define LAB4FS_SUPER_MAGIC	0x1ab4f5 /* lab4fs */
 #define LAB4BAD_INO         0
 #define LAB4FS_ROOT_INO     1
@@ -60,6 +86,16 @@ struct lab4fs_sb_info {
 	struct buffer_head *s_sbh;
 	unsigned s_blocks_count;
 	unsigned s_inodes_count;
+};
+
+#define LAB4FS_NAME_LEN     255
+
+struct lab4fs_dir_entry {
+	__le32	inode;			/* Inode number */
+	__le16	rec_len;		/* Directory entry length */
+	__u8    name_len;		/* Name length */
+    __u8    file_type;
+	char	name[LAB4FS_NAME_LEN];	/* File name */
 };
 
 static inline struct lab4fs_sb_info *LAB4FS_SB(struct super_block *sb)

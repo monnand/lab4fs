@@ -43,9 +43,8 @@ static void print_super(struct lab4fs_super_block *sb)
 
 static void lab4fs_put_super(struct super_block *sb)
 {
-	struct lab4fs_sb_info *sbi;
+    struct lab4fs_sb_info *sbi;
     sbi = LAB4FS_SB(sb);
-    kfree(sbi);
     return;
 }
 
@@ -74,6 +73,8 @@ struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
         switch (mode & S_IFMT) {
         case S_IFDIR:
             inode->i_op = &simple_dir_inode_operations;
+            inode->i_fop = &lab4fs_file_ops;
+            inode->i_op = &lab4fs_inode_ops;
             inode->i_nlink++;
             break;
         case S_IFREG:
