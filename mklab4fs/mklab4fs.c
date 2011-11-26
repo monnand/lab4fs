@@ -8,6 +8,7 @@
 #include <linux/fs.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 
 /*      
  * Ext2 directory file types.  Only the low 3 bits are used.  The
@@ -632,9 +633,11 @@ int write_root_dir(int fd, struct lab4fs_sb_info *sb)
     } else {
         inode.i_gid = 0;
     }
-    inode.i_atime = inode.i_ctime = inode.i_mtime =  0;
+    inode.i_atime = inode.i_ctime = inode.i_mtime = time(NULL);
     inode.i_links_count = 2;
     inode.i_blocks = 0;
+    inode.i_dir_acl = 0755;
+    inode.i_file_acl = 0755;
 
     write_to_free_data_blocks(fd, sb, 1, buf, &block); 
     write_inode_block_table(fd, sb, &inode, &block, 1);
