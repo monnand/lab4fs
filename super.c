@@ -14,6 +14,7 @@
 #include <linux/pagemap.h>
 #include <linux/version.h>
 #include <linux/nls.h>
+#include <asm/bitops.h>
 #include "lab4fs.h"
 
 #define log2(n) ffz(~(n))
@@ -190,6 +191,17 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sb->s_blocksize_bits = log2(sb->s_block_size);
 	sbi->s_sbh = bh;
     sbi->s_log_block_size = log2(sb->s_block_size);
+    sbi->s_first_ino = le32_to_cpu(es->s_first_inode);
+    sbi->s_inode_size = le32_to_cpu(es->s_inode_size);
+    sbi->s_log_inode_size = log2(sbi->s_inode_size);
+    sbi->s_inode_table = le32_to_cpu(es->s_inode_table);
+    sbi->s_data_blocks = le32_to_cpu(es->s_data_blocks);
+
+    sbi->s_inode_bitmap.nr_valid_bits = le32_to_cpu(es->s_inodes_count);
+    sbi->s_data_bitmap.nr_valid_bits = le32_to_cpu(es->s_blocks_count) 
+        - le32_to_cpu(es->s_data_blocks);
+    bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
+    bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
 
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {

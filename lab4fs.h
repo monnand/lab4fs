@@ -5,6 +5,7 @@
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/ext2_fs.h>
+#include <linux/spinlock.h>
 
 /*      
  * Ext2 directory file types.  Only the low 3 bits are used.  The
@@ -56,6 +57,9 @@
 } while(0)
 #endif
 
+#define LAB4FS_FIRST_INO(s)   (LAB4FS_SB(s)->s_first_ino)
+#define LAB4FS_INODE_SIZE(s)   (LAB4FS_SB(s)->s_inode_size)
+
 struct lab4fs_super_block {
 	__le32 s_magic;
 
@@ -82,21 +86,26 @@ struct lab4fs_super_block {
 
 struct lab4fs_inode {
 	__le16	i_mode;		/* File mode */
-	__le16	i_uid;		/* Low 16 bits of Owner Uid */
+	__le16	i_links_count;	/* Links count */
 	__le32	i_size;		/* Size in bytes */
 	__le32	i_atime;	/* Access time */
 	__le32	i_ctime;	/* Creation time */
 	__le32	i_mtime;	/* Modification time */
 	__le32	i_dtime;	/* Deletion Time */
-	__le16	i_gid;		/* Low 16 bits of Group Id */
-	__le16	i_links_count;	/* Links count */
+	__le32  i_gid;		/* Low 16 bits of Group Id */
+	__le32  i_uid;		/* Low 16 bits of Owner Uid */
 	__le32	i_blocks;	/* Blocks count */
 	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
+	__le32	i_file_acl;	/* File ACL */
+	__le32	i_dir_acl;	/* Directory ACL */
 };
 
 struct lab4fs_bitmap {
     int nr_bhs;
+    rwlock_t rwlock;
     int nr_valid_bits;
+    __u32 log_nr_bits_per_block;
+    __u32 nr_bits_per_block;
     struct buffer_head **bhs;
 }
 
@@ -106,23 +115,30 @@ struct lab4fs_sb_info {
 	unsigned s_blocks_count;
 	unsigned s_inodes_count;
     unsigned s_log_block_size;
+    unsigned s_log_inode_size;
+    unsigned s_first_ino;
+    unsigned s_inode_size;
+	__u32 s_inode_table;
+	__u32 s_data_blocks;
 
     struct lab4fs_bitmap s_inode_bitmap;
     struct lab4fs_bitmap s_data_bitmap;
 };
 
 struct lab4fs_inode_info {
-	__le16	i_mode;		/* File mode */
-	__le16	i_uid;		/* Low 16 bits of Owner Uid */
-	__le32	i_size;		/* Size in bytes */
-	__le32	i_atime;	/* Access time */
-	__le32	i_ctime;	/* Creation time */
-	__le32	i_mtime;	/* Modification time */
-	__le32	i_dtime;	/* Deletion Time */
-	__le16	i_gid;		/* Low 16 bits of Group Id */
-	__le16	i_links_count;	/* Links count */
-	__le32	i_blocks;	/* Blocks count */
+	__u16	i_mode;		/* File mode */
+	__u16	i_links_count;	/* Links count */
+	__u32	i_size;		/* Size in bytes */
+	__u32	i_atime;	/* Access time */
+	__u32	i_ctime;	/* Creation time */
+	__u32	i_mtime;	/* Modification time */
+	__u32	i_dtime;	/* Deletion Time */
+	__u32  	i_gid;		/* Low 16 bits of Group Id */
+	__u32	i_uid;		/* Low 16 bits of Owner Uid */
+	__u32	i_blocks;	/* Blocks count */
 	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
+	__u32	i_file_acl;	/* File ACL */
+	__u32	i_dir_acl;	/* Directory ACL */
     struct inode vfs_inode;
     struct buffer_head *bh;
 };
@@ -147,6 +163,14 @@ static inline struct lab4fs_inode_info *LAB4FS_I(struct inode *inode)
     return container_of(inode, struct lab4fs_inode_info, vfs_inode);
 }
 
-extern void lab4fs_read_inode(struct inode *inode);
+void lab4fs_read_inode(struct inode *inode);
+int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
+        __u32 start_block);
+void bitmap_set_bit(struct lab4fs_bitmap *bitmap, int nr);
+int bitmap_test_and_set_bit(struct lab4fs_bitmap *bitmap, int nr);
+void bitmap_clear_bit(struct lab4fs_bitmap *bitmap, int nr);
+int bitmap_test_and_clear_bit(struct lab4fs_bitmap *bitmap, int nr);
+int bitmap_test_bit(struct lab4fs_bitmap *bitmap, int nr);
+
 #endif
 

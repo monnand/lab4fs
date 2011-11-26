@@ -130,16 +130,18 @@ struct lab4fs_sb_info {
 
 struct lab4fs_inode {
 	__le16	i_mode;		/* File mode */
-	__le16	i_uid;		/* Low 16 bits of Owner Uid */
+	__le16	i_links_count;	/* Links count */
 	__le32	i_size;		/* Size in bytes */
 	__le32	i_atime;	/* Access time */
 	__le32	i_ctime;	/* Creation time */
 	__le32	i_mtime;	/* Modification time */
 	__le32	i_dtime;	/* Deletion Time */
-	__le16	i_gid;		/* Low 16 bits of Group Id */
-	__le16	i_links_count;	/* Links count */
+	__le32  i_gid;		/* Low 16 bits of Group Id */
+	__le32  i_uid;		/* Low 16 bits of Owner Uid */
 	__le32	i_blocks;	/* Blocks count */
 	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
+	__le32	i_file_acl;	/* File ACL */
+	__le32	i_dir_acl;	/* Directory ACL */
 };
 
 #define LAB4FS_NAME_LEN     255
@@ -535,14 +537,14 @@ int write_inode(int fd, struct lab4fs_sb_info *sb,
 
     i = offset;
     write2buf16(inode->i_mode, buf, i);
-    write2buf16(inode->i_uid, buf, i);
+    write2buf16(inode->i_links_count, buf, i);
     write2buf32(inode->i_size, buf, i);
     write2buf32(inode->i_atime, buf, i);
     write2buf32(inode->i_ctime, buf, i);
     write2buf32(inode->i_mtime, buf, i);
     write2buf32(inode->i_dtime, buf, i);
-    write2buf16(inode->i_gid, buf, i);
-    write2buf16(inode->i_links_count, buf, i);
+    write2buf32(inode->i_gid, buf, i);
+    write2buf32(inode->i_uid, buf, i);
     write2buf32(inode->i_blocks, buf, i);
 
     /* 
@@ -551,6 +553,8 @@ int write_inode(int fd, struct lab4fs_sb_info *sb,
      */
     for (offset = 0; offset < LAB4FS_N_BLOCKS; offset++)
         write2buf32(inode->i_block[offset], buf, i);
+    write2buf32(inode->i_file_acl, buf, i);
+    write2buf32(inode->i_dir_acl, buf, i);
     write_blocks(fd, sb, block, 1, buf);
     free(buf);
 }
