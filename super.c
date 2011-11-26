@@ -1,4 +1,3 @@
-
 #include <linux/config.h>
 #include <linux/module.h>
 #include <linux/string.h>
@@ -17,17 +16,7 @@
 #include <linux/nls.h>
 #include "lab4fs.h"
 
-#define LAB4FS_MAGIC	0x1ab4f5 /* lab4fs */
-
-#define LAB4ERROR(string, args...)	do {	\
-	printk(KERN_WARNING "[lab4fs] " string, ##args);	\
-} while (0)
-
-#ifdef CONFIG_LAB4FS_DEBUG
-#define LAB4DEBUG(string, args...)	do {	\
-	printk(KERN_DEBUG "[lab4fs] "string, ##args);	\
-} while(0)
-#endif
+#define log2(n) ffz(~(n))
 
 #ifdef CONFIG_LAB4FS_DEBUG
 static void print_super(struct lab4fs_super_block *sb)
@@ -45,15 +34,39 @@ static void lab4fs_put_super(struct super_block *sb)
 {
     struct lab4fs_sb_info *sbi;
     sbi = LAB4FS_SB(sb);
+    if (sbi == NULL)
+        return;
+    kfree(sbi);
     return;
 }
 
+static kmem_cache_t *lab4fs_inode_cachep;
+
+static struct inode *lab4fs_alloc_inode(struct super_block *sb)
+{
+    struct lab4fs_inode_info *ei;
+	ei = (struct lab4fs_inode_info *)kmem_cache_alloc(lab4fs_inode_cachep, SLAB_KERNEL);
+	if (!ei)
+		return NULL;
+    ei->vfs_inode.i_sb = sb;
+	return &ei->vfs_inode;
+}
+
+static void lab4fs_destroy_inode(struct inode *inode)
+{
+	kmem_cache_free(lab4fs_inode_cachep, LAB4FS_I(inode));
+}
+
 struct super_operations lab4fs_super_ops = {
+    .alloc_inode    = lab4fs_alloc_inode,
+    .destroy_inode  = lab4fs_destroy_inode,
+    .read_inode     = lab4fs_read_inode,
     .statfs         = simple_statfs,
     .drop_inode     = generic_delete_inode,
     .put_super      = lab4fs_put_super,
 };
 
+/*
 struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
 {
     struct inode *inode;
@@ -85,6 +98,7 @@ struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
     }
     return inode;
 }
+*/
 
 static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 {
@@ -173,8 +187,9 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		}
 	}
 	sb->s_maxbytes = lab4fs_max_size(es);
-    sb->s_blocksize_bits = 10;
+    sb->s_blocksize_bits = log2(sb->s_block_size);
 	sbi->s_sbh = bh;
+    sbi->s_log_block_size = log2(sb->s_block_size);
 
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
@@ -205,16 +220,36 @@ static struct file_system_type lab4fs_fs_type = {
 	/*  .fs_flags */
 };
 
+static int init_inodecache(void)
+{
+	lab4fs_inode_cachep = kmem_cache_create("lab4fs_inode_cache",
+					     sizeof(struct lab4fs_inode_info),
+					     0, SLAB_RECLAIM_ACCOUNT,
+					     init_once, NULL);
+	if (lab4fs_inode_cachep == NULL)
+		return -ENOMEM;
+	return 0;
+}
 
 static int __init init_lab4fs_fs(void)
 {
     LAB4DEBUG("Test: I have been inited\n");
+    int err = init_inodecache();
+    if (err)
+        return err;
 	return register_filesystem(&lab4fs_fs_type);
+}
+
+static void destroy_inodecache(void)
+{
+	if (kmem_cache_destroy(lab4fs_inode_cachep))
+		printk(KERN_INFO "lab4fs_inode_cache: not all structures were freed\n");
 }
 
 static void __exit exit_lab4fs_fs(void)
 {
 	unregister_filesystem(&lab4fs_fs_type);
+	destroy_inodecache();
 }
 
 module_init(init_lab4fs_fs)

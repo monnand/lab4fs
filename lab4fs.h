@@ -1,6 +1,8 @@
 #ifndef __LAB4FS_H
 #define __LAB4FS_H
 
+#include <linux/config.h>
+#include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/ext2_fs.h>
 
@@ -30,7 +32,6 @@
 #define LAB4FS_DIR_REC_LEN(name_len)  (((name_len) + 8 + EXT2_DIR_ROUND) & \
                      ~EXT2_DIR_ROUND)
 
-#define LAB4FS_SUPER_MAGIC	0x1ab4f5 /* lab4fs */
 #define LAB4BAD_INO         0
 #define LAB4FS_ROOT_INO     1
 
@@ -42,6 +43,18 @@
 #define LAB4FS_NDIR_BLOCKS  7
 #define LAB4FS_IND_BLOCKS   8
 #define LAB4FS_N_BLOCKS     8
+
+#define LAB4FS_MAGIC	0x1ab4f5 /* lab4fs */
+
+#define LAB4ERROR(string, args...)	do {	\
+	printk(KERN_WARNING "[lab4fs] " string, ##args);	\
+} while (0)
+
+#ifdef CONFIG_LAB4FS_DEBUG
+#define LAB4DEBUG(string, args...)	do {	\
+	printk(KERN_DEBUG "[lab4fs] "string, ##args);	\
+} while(0)
+#endif
 
 struct lab4fs_super_block {
 	__le32 s_magic;
@@ -81,11 +94,37 @@ struct lab4fs_inode {
 	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
 };
 
+struct lab4fs_bitmap {
+    int nr_bhs;
+    int nr_valid_bits;
+    struct buffer_head **bhs;
+}
+
 struct lab4fs_sb_info {
 	struct lab4fs_super_block *s_sb;
 	struct buffer_head *s_sbh;
 	unsigned s_blocks_count;
 	unsigned s_inodes_count;
+    unsigned s_log_block_size;
+
+    struct lab4fs_bitmap s_inode_bitmap;
+    struct lab4fs_bitmap s_data_bitmap;
+};
+
+struct lab4fs_inode_info {
+	__le16	i_mode;		/* File mode */
+	__le16	i_uid;		/* Low 16 bits of Owner Uid */
+	__le32	i_size;		/* Size in bytes */
+	__le32	i_atime;	/* Access time */
+	__le32	i_ctime;	/* Creation time */
+	__le32	i_mtime;	/* Modification time */
+	__le32	i_dtime;	/* Deletion Time */
+	__le16	i_gid;		/* Low 16 bits of Group Id */
+	__le16	i_links_count;	/* Links count */
+	__le32	i_blocks;	/* Blocks count */
+	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
+    struct inode vfs_inode;
+    struct buffer_head *bh;
 };
 
 #define LAB4FS_NAME_LEN     255
@@ -103,5 +142,11 @@ static inline struct lab4fs_sb_info *LAB4FS_SB(struct super_block *sb)
     return sb->s_fs_info;
 }
 
+static inline struct lab4fs_inode_info *LAB4FS_I(struct inode *inode)
+{
+    return container_of(inode, struct lab4fs_inode_info, vfs_inode);
+}
+
+extern void lab4fs_read_inode(struct inode *inode);
 #endif
 
