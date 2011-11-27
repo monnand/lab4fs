@@ -143,7 +143,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     blocksize = le32_to_cpu(es->s_block_size);
     hblock = bdev_hardsect_size(sb->s_bdev);
     LAB4DEBUG("blocksize: %d, hblock: %d\n", blocksize, hblock);
-    return -EIO;
     if (sb->s_blocksize != blocksize) {
         /*
          * Make sure the blocksize for the filesystem is larger
@@ -188,6 +187,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sb->s_op = &lab4fs_super_ops;
 
     LAB4DEBUG("Now setting up the bitmaps\n");
+    return -EIO;
     bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
     bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
 
