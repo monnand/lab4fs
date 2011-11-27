@@ -185,9 +185,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		}
 	}
 	sb->s_maxbytes = lab4fs_max_size(es);
-    sb->s_blocksize_bits = log2(sb->s_block_size);
 	sbi->s_sbh = bh;
-    sbi->s_log_block_size = log2(sb->s_block_size);
+    sbi->s_log_block_size = log2(sb->s_blocksize);
     sbi->s_first_ino = le32_to_cpu(es->s_first_inode);
     sbi->s_inode_size = le32_to_cpu(es->s_inode_size);
     sbi->s_log_inode_size = log2(sbi->s_inode_size);
