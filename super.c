@@ -96,6 +96,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 	struct inode *root;
 	int hblock;
 
+    LAB4DEBUG("OK starting fill super...");
+
 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
 	if (!sbi)
 		return -ENOMEM;
