@@ -12,7 +12,7 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
     int i;
     __u32 current_block = start_block;
     int nr_valid_bits = bitmap->nr_valid_bits;
-    bits_per_block = sb->s_block_size << 3;
+    bits_per_block = sb->s_blocksize << 3;
     bitmap->rwlock = RW_LOCK_UNLOCKED;
     write_lock(&bitmap->rwlock);
     bitmap->log_nr_bits_per_block = log2(bits_per_block);
@@ -22,7 +22,7 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
         struct buffer_head *bh;
 		bh = sb_bread(sb, current_block);
         if (!bh) {
-            LAB4ERROR("Cannot load bitmap at block %lu\n", current_block);
+            LAB4ERROR("Cannot load bitmap at block %u\n", current_block);
             write_unlock(&bitmap->rwlock);
             return -1;
         }

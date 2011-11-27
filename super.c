@@ -13,7 +13,6 @@
 #include <linux/fs.h>
 #include <linux/pagemap.h>
 #include <linux/version.h>
-#include <linux/nls.h>
 #include <asm/bitops.h>
 #include "lab4fs.h"
 

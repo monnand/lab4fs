@@ -3,8 +3,20 @@
 
 #include <linux/config.h>
 #include <linux/module.h>
+#include <linux/string.h>
+#include <linux/slab.h>
+#include <linux/init.h>
+#include <linux/blkdev.h>
+#include <linux/parser.h>
+#include <linux/random.h>
+#include <linux/buffer_head.h>
+#include <linux/smp_lock.h>
+#include <linux/vfs.h>
+#include <asm/uaccess.h>
 #include <linux/fs.h>
-#include <linux/ext2_fs.h>
+#include <linux/pagemap.h>
+#include <linux/version.h>
+#include <asm/bitops.h>
 #include <linux/spinlock.h>
 
 /*      
