@@ -19,12 +19,12 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
     if (nr_valid_bits % bits_per_block)
         bitmap->nr_bhs++;
     bitmap->bhs = kmalloc(sizeof(struct buffer_head *) * bitmap->nr_bhs, GFP_KERNEL);
-    if (!bitmap->bhs)
+    if (bitmap->bhs == NULL)
         return -ENOMEM;
 
     LAB4DEBUG("I will setup a bitmap with %d buffer head(s)\n", bitmap->nr_bhs);
 
-    for(i = 0; nr_valid_bits > 0; nr_valid_bits -= bits_per_block, i++) {
+    for(i = 0; i < bitmap->nr_bhs; i++) {
         struct buffer_head *bh;
 		bh = sb_bread(sb, current_block);
         if (!bh) {
@@ -34,7 +34,7 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
         }
         bitmap->bhs[i] = bh;
     }
-    bitmap->nr_bhs = i + 1;
+    LAB4DEBUG("I finished setup the bitmap\n";
     write_unlock(&bitmap->rwlock);
     return 0;
 }
