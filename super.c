@@ -123,6 +123,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 
     LAB4DEBUG("sb@%lu:%u\n", logic_sb_block, offset);
 
+    return -EIO;
+
     if (!(bh = sb_bread(sb, logic_sb_block))) {
         LAB4ERROR("unable to read super block\n");
         goto out_fail;
