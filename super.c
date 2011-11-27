@@ -127,9 +127,9 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         LAB4ERROR("unable to read super block\n");
         goto out_fail;
     }
-    return -EIO;
 
     LAB4DEBUG("finished reading block\n");
+    return -EIO;
     es = (struct lab4fs_super_block *) (((char *)bh->b_data) + offset);
     sbi->s_sb = es;
     sb->s_magic = le32_to_cpu(es->s_magic);
