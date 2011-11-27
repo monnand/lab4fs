@@ -25,7 +25,7 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     struct buffer_head *bh;
     __u32 block, offset;
 
-    LAB4DEBUG("trying to get inode: %lu\n", ino);
+    LAB4DEBUG("trying to get inode: %u\n", ino);
 
     *p = NULL;
     if ((ino != LAB4FS_ROOT_INO && ino < LAB4FS_FIRST_INO(sb)) ||
@@ -41,12 +41,12 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
 	return (struct lab4fs_inode *) (bh->b_data + offset);
 
 Einval:
-    LAB4ERROR("lab4fs_get_inode: bad inode number: %lu\n",
+    LAB4ERROR("lab4fs_get_inode: bad inode number: %u\n",
             (unsigned long) ino);
     return ERR_PTR(-EINVAL);
 Eio:
     LAB4ERROR("lab4fs_get_inode: "
-		   "unable to read inode block - inode=%lu, block=%lu",
+		   "unable to read inode block - inode=%u, block=%u",
 		   (unsigned long) ino, block);
 	return ERR_PTR(-EIO);
 }
@@ -92,7 +92,7 @@ void lab4fs_read_inode(struct inode *inode)
 	 * NOTE! The in-memory inode i_data array is in little-endian order
 	 * even on big-endian machines: we do NOT byteswap the block numbers!
 	 */
-	for (n = 0; n < EXT2_N_BLOCKS; n++)
+	for (n = 0; n < LAB4FS_N_BLOCKS; n++)
 		ei->i_block[n] = raw_inode->i_block[n];
 
     /*
@@ -102,7 +102,7 @@ void lab4fs_read_inode(struct inode *inode)
     if (S_ISREG(inode->i_mode)) {
     } else if (S_ISDIR(inode->i_mode)) {
 
-        LAB4DEBUG("I got a dir inode, ino: %lu\n", ino);
+        LAB4DEBUG("I got a dir inode, ino: %u\n", ino);
         inode->i_op = &simple_dir_inode_operations;
         inode->i_fop = &simple_dir_operations;
         /*
@@ -130,7 +130,7 @@ static int lab4fs_block_to_path(struct inode *inode,
     int final = 0;
     int n = 0;
     if (i_block < 0) {
-        LAB4ERROR("block %lu < 0\n", i_block);
+        LAB4ERROR("block %u < 0\n", i_block);
         return 0;
     } else if (i_block < direct_blocks) {
         offsets[n++] = i_block;
@@ -163,7 +163,7 @@ static Indirect *lab4fs_get_branch(struct inode *inode,
     /* First layer index; NULL for bh member */
 	add_chain (chain, NULL, LAB4FS_I(inode)->i_block + *offsets);
  	while (--depth) {
-        LAB4DEBUG("Read fs block %lu\n", le32_to_cpu(p->key));
+        LAB4DEBUG("Read fs block %u\n", le32_to_cpu(p->key));
 		bh = sb_bread(sb, le32_to_cpu(p->key));
 		if (!bh)
 			goto failure;
