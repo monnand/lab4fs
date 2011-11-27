@@ -34,7 +34,7 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
         }
         bitmap->bhs[i] = bh;
     }
-    LAB4DEBUG("I finished setup the bitmap\n";
+    LAB4DEBUG("I finished setup the bitmap\n");
     write_unlock(&bitmap->rwlock);
     return 0;
 }
