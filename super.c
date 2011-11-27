@@ -127,6 +127,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		goto out_fail;
 	}
 
+    LAB4DEBUG("finished reading block\n");
 	es = (struct lab4fs_super_block *) (((char *)bh->b_data) + offset);
 	sbi->s_sb = es;
 	sb->s_magic = le32_to_cpu(es->s_magic);
@@ -137,6 +138,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		goto failed_mount;
 	}
 
+    LAB4DEBUG("converting block size\n");
 	blocksize = le32_to_cpu(es->s_block_size);
 	hblock = bdev_hardsect_size(sb->s_bdev);
 	if (sb->s_blocksize != blocksize) {
@@ -166,6 +168,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 			goto failed_mount;
 		}
 	}
+    LAB4DEBUG("got the right block size: %dB\n", blocksize);
 	sb->s_maxbytes = lab4fs_max_size(es);
 	sbi->s_sbh = bh;
     sbi->s_log_block_size = log2(sb->s_blocksize);
@@ -178,10 +181,13 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_inode_bitmap.nr_valid_bits = le32_to_cpu(es->s_inodes_count);
     sbi->s_data_bitmap.nr_valid_bits = le32_to_cpu(es->s_blocks_count) 
         - le32_to_cpu(es->s_data_blocks);
+
+    sb->s_op = &lab4fs_super_ops;
+
+    LAB4DEBUG("Now setting up the bitmaps\n");
     bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
     bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
 
-    sb->s_op = &lab4fs_super_ops;
     print_super(es);
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
     root = iget(sb, sbi->s_root_inode);
