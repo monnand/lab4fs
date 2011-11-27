@@ -231,9 +231,9 @@ static int init_inodecache(void)
 
 static int __init init_lab4fs_fs(void)
 {
-    LAB4DEBUG("Test: I have been inited\n");
     int err;
     err = init_inodecache();
+    LAB4DEBUG("Test: I have been inited\n");
     if (err)
         return err;
 	return register_filesystem(&lab4fs_fs_type);
