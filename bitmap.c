@@ -51,7 +51,7 @@ int bitmap_test_and_set_bit(struct lab4fs_bitmap *bitmap, int nr)
     void *data;
     int ret;
     if (unlikely(nr < 0 || nr >= bitmap->nr_valid_bits))
-        return;
+        return -1;
     write_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
     offset = n % bitmap->nr_bits_per_block;
@@ -84,7 +84,7 @@ int bitmap_test_and_clear_bit(struct lab4fs_bitmap *bitmap, int nr)
     void *data;
     int ret;
     if (unlikely(nr < 0 || nr >= bitmap->nr_valid_bits))
-        return;
+        return -1;
     write_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
     offset = n % bitmap->nr_bits_per_block;
@@ -102,7 +102,7 @@ int bitmap_test_bit(struct lab4fs_bitmap *bitmap, int nr)
     void *data;
     int ret;
     if (unlikely(nr < 0 || nr >= bitmap->nr_valid_bits))
-        return;
+        return -1;
     read_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
     offset = n % bitmap->nr_bits_per_block;
