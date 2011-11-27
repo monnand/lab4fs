@@ -10,7 +10,7 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
     __u32 current_block = start_block;
     int nr_valid_bits = bitmap->nr_valid_bits;
     bits_per_block = sb->s_blocksize << 3;
-    bitmap->rwlock = RW_LOCK_UNLOCKED;
+    rwlock_init(&bitmap->rwlock);
     write_lock(&bitmap->rwlock);
     bitmap->log_nr_bits_per_block = log2(bits_per_block);
     bitmap->nr_bits_per_block = bits_per_block;
@@ -36,7 +36,6 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
         bitmap->bhs[i] = bh;
     }
     LAB4DEBUG("I finished setup the bitmap\n");
-    return -EIO;
     write_unlock(&bitmap->rwlock);
     return 0;
 }
