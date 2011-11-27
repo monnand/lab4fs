@@ -181,6 +181,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
     bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
 
+    sb->s_op = &lab4fs_super_ops;
     print_super(es);
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
     root = iget(sb, sbi->s_root_inode);
@@ -190,8 +191,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         kfree(sbi);
         return -ENOMEM;
     }
-
-    sb->s_op = &lab4fs_super_ops;
 
 failed_mount:
 out_fail:
