@@ -97,8 +97,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     int hblock;
     int err;
 
-    LAB4DEBUG("OK starting fill super...\n");
-
     sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
     if (!sbi)
         return -ENOMEM;
@@ -123,14 +121,11 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         logic_sb_block = sb_block;
     }
 
-    LAB4DEBUG("sb@%lu:%u; blksz:%lu\n", logic_sb_block, offset, sb->s_blocksize);
-
     if (!(bh = sb_bread(sb, logic_sb_block))) {
         LAB4ERROR("unable to read super block\n");
         goto out_fail;
     }
 
-    LAB4DEBUG("finished reading block\n");
     es = (struct lab4fs_super_block *) (((char *)bh->b_data) + offset);
     sbi->s_sb = es;
     sb->s_magic = le32_to_cpu(es->s_magic);
@@ -141,10 +136,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         goto failed_mount;
     }
 
-    LAB4DEBUG("converting block size\n");
     blocksize = le32_to_cpu(es->s_block_size);
     hblock = bdev_hardsect_size(sb->s_bdev);
-    LAB4DEBUG("blocksize: %d, hblock: %d\n", blocksize, hblock);
     if (sb->s_blocksize != blocksize) {
         /*
          * Make sure the blocksize for the filesystem is larger
@@ -172,7 +165,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
             goto failed_mount;
         }
     }
-    LAB4DEBUG("got the right block size: %dB\n", blocksize);
     sb->s_maxbytes = lab4fs_max_size(es);
     sbi->s_sbh = bh;
     sbi->s_log_block_size = log2(sb->s_blocksize);
@@ -188,9 +180,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 
     sb->s_op = &lab4fs_super_ops;
 
-    LAB4DEBUG("Now setting up the bitmaps\n");
     err = bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
-    LAB4DEBUG("Finished one bitmap\n");
     if (err)
         goto out_fail;
     err = bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
@@ -201,6 +191,10 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
     return -EIO;
     root = iget(sb, sbi->s_root_inode);
+    if (root == NULL) {
+        err = -EIO;
+        goto failed_mount;
+    }
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
         iput(root);
@@ -219,7 +213,6 @@ out_fail:
 struct super_block *lab4fs_get_sb(struct file_system_type *fs_type,
         int flags, const char *dev_name, void *data)
 {
-    LAB4DEBUG("WTF! Call me just once! I mean ONE SINGLE TIME!!\n");
 	return get_sb_bdev(fs_type, flags, dev_name, data, lab4fs_fill_super);
 }
 
