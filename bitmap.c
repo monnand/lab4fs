@@ -1,6 +1,3 @@
-#include <linux/config.h>
-#include <linux/module.h>
-#include <asm/bitops.h>
 #include "lab4fs.h"
 
 #define log2(n) ffz(~(n))

@@ -1,6 +1,4 @@
 #include "lab4fs.h"
-#include <linux/pagemap.h>
-#include <linux/smp_lock.h>
 
 static inline unsigned long dir_pages(struct inode *inode)
 {
