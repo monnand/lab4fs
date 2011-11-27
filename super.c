@@ -121,14 +121,13 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         logic_sb_block = sb_block;
     }
 
-    LAB4DEBUG("sb@%lu:%u\n", logic_sb_block, offset);
-
-    return -EIO;
+    LAB4DEBUG("sb@%lu:%u; blksz:%u\n", logic_sb_block, offset, sb->s_blocksize);
 
     if (!(bh = sb_bread(sb, logic_sb_block))) {
         LAB4ERROR("unable to read super block\n");
         goto out_fail;
     }
+    return -EIO;
 
     LAB4DEBUG("finished reading block\n");
     es = (struct lab4fs_super_block *) (((char *)bh->b_data) + offset);
@@ -210,6 +209,7 @@ out_fail:
 struct super_block *lab4fs_get_sb(struct file_system_type *fs_type,
         int flags, const char *dev_name, void *data)
 {
+    LAB4DEBUG("WTF! Call me just once! I mean ONE SINGLE TIME!!\n");
 	return get_sb_bdev(fs_type, flags, dev_name, data, lab4fs_fill_super);
 }
 

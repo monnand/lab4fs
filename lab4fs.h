@@ -70,7 +70,7 @@
 
 #ifdef CONFIG_LAB4FS_DEBUG
 #define LAB4DEBUG(string, args...)	do {	\
-	printk(KERN_ERR "[lab4fs][%s:%d] "string"\n", __FILE__, __LINE__, \
+	printk(KERN_ERR "[lab4fs][%s:%d] "string, __FILE__, __LINE__, \
     ##args);	\
 } while(0)
 #endif
