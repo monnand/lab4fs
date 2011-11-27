@@ -140,7 +140,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     }
 
     LAB4DEBUG("converting block size\n");
-    return -EIO;
     blocksize = le32_to_cpu(es->s_block_size);
     hblock = bdev_hardsect_size(sb->s_bdev);
     if (sb->s_blocksize != blocksize) {
