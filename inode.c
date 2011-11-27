@@ -1,4 +1,6 @@
 #include "lab4fs.h"
+#include <linux/pagemap.h>
+#include <linux/writeback.h>
 
 typedef struct {
 	__le32	*p;
