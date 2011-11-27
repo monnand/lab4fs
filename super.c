@@ -96,7 +96,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 	struct inode *root;
 	int hblock;
 
-    LAB4DEBUG("OK starting fill super...");
+    LAB4DEBUG("OK starting fill super...\n");
 
 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
 	if (!sbi)
@@ -121,7 +121,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		logic_sb_block = sb_block;
 	}
 
-    LAB4DEBUG("I will look up the table at block %lu, offset %u\n",
+    LAB4DEBUG("sb@%lu:%u\n",
             logic_sb_block, offset);
 
 	if (!(bh = sb_bread(sb, logic_sb_block))) {
