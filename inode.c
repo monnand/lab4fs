@@ -64,7 +64,6 @@ Eio:
     LAB4ERROR("lab4fs_get_inode: "
 		   "unable to read inode block - inode=%lu, block=%lu",
 		   (unsigned long) ino, block);
-Egdp:
 	return ERR_PTR(-EIO);
 }
 
@@ -110,7 +109,7 @@ void lab4fs_read_inode(struct inode *inode)
 	 * even on big-endian machines: we do NOT byteswap the block numbers!
 	 */
 	for (n = 0; n < EXT2_N_BLOCKS; n++)
-		ei->i_data[n] = raw_inode->i_block[n];
+		ei->i_block[n] = raw_inode->i_block[n];
 
     /*
      * TODO set operations
@@ -130,7 +129,6 @@ void lab4fs_read_inode(struct inode *inode)
         LAB4DEBUG("Not implemented\n");
     }
 	brelse (bh);
-    inode->i_flag = 0;
     write_unlock(&ei->rwlock);
     return;
 bad_inode:
@@ -147,7 +145,7 @@ static int lab4fs_block_to_path(struct inode *inode,
     const long indirect_blocks = ptrs;
     int final = 0;
     int n = 0;
-    if (i_blocks < 0) {
+    if (i_block < 0) {
         LAB4ERROR("block %lu < 0\n", i_block);
         return 0;
     } else if (i_block < direct_blocks) {
