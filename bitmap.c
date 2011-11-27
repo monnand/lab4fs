@@ -22,11 +22,9 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
     if (bitmap->bhs == NULL)
         return -ENOMEM;
 
-    LAB4DEBUG("I will setup a bitmap with %d buffer head(s)\n", bitmap->nr_bhs);
 
     for(i = 0; i < bitmap->nr_bhs; i++) {
         struct buffer_head *bh;
-        LAB4DEBUG("I will read block @ %u\n", current_block);
 		bh = sb_bread(sb, current_block);
         if (!bh) {
             LAB4ERROR("Cannot load bitmap at block %u\n", current_block);
@@ -35,7 +33,6 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
         }
         bitmap->bhs[i] = bh;
     }
-    LAB4DEBUG("I finished setup the bitmap\n");
     write_unlock(&bitmap->rwlock);
     return 0;
 }

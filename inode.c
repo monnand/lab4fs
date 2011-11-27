@@ -31,13 +31,14 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     LAB4DEBUG("trying to get inode: %lu\n", ino);
 
     *p = NULL;
-	return ERR_PTR(-EIO);
     if ((ino != LAB4FS_ROOT_INO && ino < LAB4FS_FIRST_INO(sb)) ||
             ino > le32_to_cpu(LAB4FS_SB(sb)->s_sb->s_inodes_count))
         goto Einval;
     block = ino / LAB4FS_INODE_SIZE(sb);
     offset = ino % LAB4FS_INODE_SIZE(sb);
     block += LAB4FS_SB(sb)->s_inode_table;
+    LAB4DEBUG("read block: %u:%u\n", block, offset);
+	return ERR_PTR(-EIO);
 	if (!(bh = sb_bread(sb, block)))
         goto Eio;
     *p = bh;
