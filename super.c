@@ -189,7 +189,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 
     print_super(es);
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
-    return -EIO;
+    LAB4DEBUG("Now loading root dir\n");
     root = iget(sb, sbi->s_root_inode);
     if (root == NULL) {
         err = -EIO;
@@ -245,7 +245,6 @@ static int __init init_lab4fs_fs(void)
 {
     int err;
     err = init_inodecache();
-    LAB4DEBUG("Test: I have been inited\n");
     if (err)
         return err;
 	return register_filesystem(&lab4fs_fs_type);
