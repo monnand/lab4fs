@@ -95,6 +95,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     struct lab4fs_sb_info *sbi;
     struct inode *root;
     int hblock;
+    int err;
 
     LAB4DEBUG("OK starting fill super...\n");
 
@@ -107,6 +108,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     blocksize = sb_min_blocksize(sb, BLOCK_SIZE);
     if (!blocksize) {
         LAB4ERROR("unable to set blocksize\n");
+        err = -EIO;
         goto out_fail;
     }
 
@@ -187,9 +189,12 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sb->s_op = &lab4fs_super_ops;
 
     LAB4DEBUG("Now setting up the bitmaps\n");
-    return -EIO;
-    bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
-    bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
+    err = bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
+    if (err)
+        goto out_fail;
+    err = bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
+    if (err)
+        goto out_fail;
 
     print_super(es);
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
@@ -201,10 +206,12 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         return -ENOMEM;
     }
 
+    return 0;
+
 failed_mount:
 out_fail:
 	kfree(sbi);
-	return 0;
+	return err;
 }
 
 struct super_block *lab4fs_get_sb(struct file_system_type *fs_type,
