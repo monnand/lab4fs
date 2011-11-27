@@ -190,6 +190,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 
     LAB4DEBUG("Now setting up the bitmaps\n");
     err = bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
+    LAB4DEBUG("Finished one bitmap\n");
+    return -EIO;
     if (err)
         goto out_fail;
     err = bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
