@@ -230,6 +230,12 @@ static struct file_system_type lab4fs_fs_type = {
 	/*  .fs_flags */
 };
 
+static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+{
+    struct lab4fs_inode_info *ei = (struct lab4fs_inode_info *) foo;
+    inode_init_once(&ei->vfs_inode);
+}
+
 static int init_inodecache(void)
 {
 	lab4fs_inode_cachep = kmem_cache_create("lab4fs_inode_cache",
@@ -239,12 +245,6 @@ static int init_inodecache(void)
 	if (lab4fs_inode_cachep == NULL)
 		return -ENOMEM;
 	return 0;
-}
-
-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
-{
-    struct lab4fs_inode_info *ei = (struct lab4fs_inode_info *) foo;
-    inode_init_once(&ei->vfs_inode);
 }
 
 static int __init init_lab4fs_fs(void)
