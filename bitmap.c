@@ -23,6 +23,7 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
         return -ENOMEM;
 
     LAB4DEBUG("I will setup a bitmap with %d buffer head(s)\n", bitmap->nr_bhs);
+    return -EIO;
 
     for(i = 0; i < bitmap->nr_bhs; i++) {
         struct buffer_head *bh;
