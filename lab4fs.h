@@ -45,6 +45,11 @@
 #define LAB4FS_IND_BLOCKS   8
 #define LAB4FS_N_BLOCKS     8
 
+#define LAB4FS_BLOCK_SIZE(s)		((s)->s_blocksize)
+
+#define	LAB4FS_ADDR_PER_BLOCK(s)		(LAB4FS_BLOCK_SIZE(s) / sizeof (__u32))
+#define LAB4FS_ADDR_PER_BLOCK_BITS(s)   4
+
 #define LAB4FS_MAGIC	0x1ab4f5 /* lab4fs */
 
 #define LAB4ERROR(string, args...)	do {	\
@@ -53,7 +58,8 @@
 
 #ifdef CONFIG_LAB4FS_DEBUG
 #define LAB4DEBUG(string, args...)	do {	\
-	printk(KERN_DEBUG "[lab4fs] "string, ##args);	\
+	printk(KERN_DEBUG "[lab4fs][%s:%d] "string, \
+            __FILE__, __LINE__, ##args);	\
 } while(0)
 #endif
 
@@ -118,6 +124,7 @@ struct lab4fs_sb_info {
     unsigned s_log_inode_size;
     unsigned s_first_ino;
     unsigned s_inode_size;
+    __u32 s_root_inode;
 	__u32 s_inode_table;
 	__u32 s_data_blocks;
 
@@ -139,6 +146,7 @@ struct lab4fs_inode_info {
 	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
 	__u32	i_file_acl;	/* File ACL */
 	__u32	i_dir_acl;	/* Directory ACL */
+    rwlock_t rwlock;
     struct inode vfs_inode;
     struct buffer_head *bh;
 };
@@ -162,6 +170,9 @@ static inline struct lab4fs_inode_info *LAB4FS_I(struct inode *inode)
 {
     return container_of(inode, struct lab4fs_inode_info, vfs_inode);
 }
+
+extern struct address_space_operations lab4fs_aops;
+extern struct file_operations lab4fs_dir_operations;
 
 void lab4fs_read_inode(struct inode *inode);
 int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,

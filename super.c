@@ -116,9 +116,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
 	if (!sbi)
 		return -ENOMEM;
-    root = lab4fs_get_inode(sb, S_IFDIR | 0755, 0);
-    if (!root)
-        return -ENOMEM;
 
 	sb->s_fs_info = sbi;
 	memset(sbi, 0, sizeof(*sbi));
@@ -203,6 +200,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
     bitmap_setup(&sbi->s_data_bitmap, sb, le32_to_cpu(es->s_data_bitmap));
 
+    sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
+    root = iget(sb, sbi->s_root_inode);
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
         iput(root);
