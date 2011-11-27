@@ -50,7 +50,7 @@
 #define	LAB4FS_ADDR_PER_BLOCK(s)		(LAB4FS_BLOCK_SIZE(s) / sizeof (__u32))
 #define LAB4FS_ADDR_PER_BLOCK_BITS(s)   4
 
-#define LAB4FS_MAGIC	0x1ab4f5 /* lab4fs */
+#define LAB4FS_SUPER_MAGIC	0x1ab4f5 /* lab4fs */
 
 #define LAB4ERROR(string, args...)	do {	\
 	printk(KERN_WARNING "[lab4fs] " string, ##args);	\
@@ -113,7 +113,7 @@ struct lab4fs_bitmap {
     __u32 log_nr_bits_per_block;
     __u32 nr_bits_per_block;
     struct buffer_head **bhs;
-}
+};
 
 struct lab4fs_sb_info {
 	struct lab4fs_super_block *s_sb;

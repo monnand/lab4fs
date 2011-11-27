@@ -242,10 +242,17 @@ static int init_inodecache(void)
 	return 0;
 }
 
+static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+{
+    struct lab4fs_inode_info *ei = (struct lab4fs_inode_info *) foo;
+    inode_init_once(&ei->vfs_inode);
+}
+
 static int __init init_lab4fs_fs(void)
 {
     LAB4DEBUG("Test: I have been inited\n");
-    int err = init_inodecache();
+    int err;
+    err = init_inodecache();
     if (err)
         return err;
 	return register_filesystem(&lab4fs_fs_type);
