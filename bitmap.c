@@ -15,6 +15,13 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
     bitmap->log_nr_bits_per_block = log2(bits_per_block);
     bitmap->nr_bits_per_block = bits_per_block;
 
+    bitmap->nr_bhs = nr_valid_bits >> bitmap->log_nr_bits_per_block;
+    if (nr_valid_bits % bits_per_block)
+        bitmap->nr_bhs++;
+    bitmap->bhs = kmalloc(sizeof(struct buffer_head *) * bitmap->nr_bhs);
+
+    LAB4DEBUG("I will setup a bitmap with %d buffer head(s)\n", bitmap->nr_bhs);
+
     for(i = 0; nr_valid_bits > 0; nr_valid_bits -= bits_per_block, i++) {
         struct buffer_head *bh;
 		bh = sb_bread(sb, current_block);

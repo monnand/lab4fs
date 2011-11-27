@@ -132,7 +132,7 @@ static int lab4fs_block_to_path(struct inode *inode,
     int final = 0;
     int n = 0;
     if (i_block < 0) {
-        LAB4ERROR("block %d < 0\n", i_block);
+        LAB4ERROR("block %d < 0\n", (int)i_block);
         return 0;
     } else if (i_block < direct_blocks) {
         offsets[n++] = i_block;
