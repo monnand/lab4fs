@@ -42,7 +42,7 @@
 #define lab4fs_max_size(x)	8192
 
 #define LAB4FS_NDIR_BLOCKS  7
-#define LAB4FS_IND_BLOCKS   8
+#define LAB4FS_IND_BLOCK    8
 #define LAB4FS_N_BLOCKS     8
 
 #define LAB4FS_BLOCK_SIZE(s)		((s)->s_blocksize)

@@ -151,7 +151,7 @@ static int lab4fs_block_to_path(struct inode *inode,
     } else if (i_block < direct_blocks) {
         offsets[n++] = i_block;
         final = direct_blocks;
-    } else if ( (i_blocks -= direct_blocks) < indirect_blocks) {
+    } else if ( (i_block -= direct_blocks) < indirect_blocks) {
 		offsets[n++] = LAB4FS_IND_BLOCK;
         offsets[n++] = i_block;
         final = ptrs;
