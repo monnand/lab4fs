@@ -38,7 +38,6 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     offset = ino % LAB4FS_INODE_SIZE(sb);
     block += LAB4FS_SB(sb)->s_inode_table;
     LAB4DEBUG("read block: %u:%u\n", block, offset);
-	return ERR_PTR(-EIO);
 	if (!(bh = sb_bread(sb, block)))
         goto Eio;
     *p = bh;
@@ -64,6 +63,7 @@ void lab4fs_read_inode(struct inode *inode)
 	struct buffer_head * bh;
     struct lab4fs_inode *raw_inode = lab4fs_get_inode(inode->i_sb, ino, &bh);
 
+    goto bad_inode;
 	if (IS_ERR(raw_inode))
  		goto bad_inode;
 
