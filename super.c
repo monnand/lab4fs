@@ -121,7 +121,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         logic_sb_block = sb_block;
     }
 
-    LAB4DEBUG("sb@%lu:%u; blksz:%u\n", logic_sb_block, offset, sb->s_blocksize);
+    LAB4DEBUG("sb@%lu:%u; blksz:%lu\n", logic_sb_block, offset, sb->s_blocksize);
 
     if (!(bh = sb_bread(sb, logic_sb_block))) {
         LAB4ERROR("unable to read super block\n");
@@ -142,6 +142,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     LAB4DEBUG("converting block size\n");
     blocksize = le32_to_cpu(es->s_block_size);
     hblock = bdev_hardsect_size(sb->s_bdev);
+    LAB4DEBUG("blocksize: %d, hblock: %d\n", blockszie, hblock);
+    return -EIO;
     if (sb->s_blocksize != blocksize) {
         /*
          * Make sure the blocksize for the filesystem is larger
