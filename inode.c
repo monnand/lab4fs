@@ -66,9 +66,7 @@ void lab4fs_read_inode(struct inode *inode)
 	if (IS_ERR(raw_inode))
  		goto bad_inode;
 
-    LAB4DEBUG("trying to lock\n");
     write_lock(&ei->rwlock);
-    goto bad_inode;
 	inode->i_mode = le16_to_cpu(raw_inode->i_mode);
 	inode->i_uid = (uid_t)le32_to_cpu(raw_inode->i_uid);
 	inode->i_gid = (gid_t)le32_to_cpu(raw_inode->i_gid);
