@@ -33,6 +33,7 @@ static struct inode *lab4fs_alloc_inode(struct super_block *sb)
 	if (!ei)
 		return NULL;
     ei->vfs_inode.i_sb = sb;
+    ei->i_dir_start_lookup = 0;
     rwlock_init(&ei->rwlock);
 	return &ei->vfs_inode;
 }
