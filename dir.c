@@ -218,6 +218,7 @@ static inline int lab4fs_add_nodir(struct dentry *dentry, struct inode *inode)
         d_instantiate(dentry, inode);
         return 0;
     }
+    LAB4DEBUG("Added the inode\n");
     lab4fs_dec_count(inode);
     iput(inode);
     return err;
@@ -442,6 +443,7 @@ static int lab4fs_create(struct inode *dir,
 		inode->i_fop = &lab4fs_file_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
 		mark_inode_dirty(inode);
+        LAB4DEBUG("add the inode to dir\n");
 		err = lab4fs_add_nodir(dentry, inode);
 	}
 	return err;

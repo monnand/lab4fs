@@ -212,7 +212,7 @@ int lab4fs_sync_inode(struct inode *inode);
 void lab4fs_put_inode(struct inode *inode);
 struct inode *lab4fs_new_inode(struct inode *dir, int mode);
 
-int lab4fs_add_link (struct dentry *dentry, struct inode *inode);
+int lab4fs_add_link(struct dentry *dentry, struct inode *inode);
 struct lab4fs_dir_entry * lab4fs_find_entry (struct inode * dir,
 			struct dentry *dentry, struct page ** res_page);
 ino_t lab4fs_inode_by_name(struct inode *dir, struct dentry *dentry);
