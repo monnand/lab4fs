@@ -431,7 +431,7 @@ static int lab4fs_create(struct inode *dir,
     struct inode *inode = lab4fs_new_inode(dir, mode);
 	int err = PTR_ERR(inode);
 	if (!IS_ERR(inode)) {
-		inode->i_op = &simple_dir_operations;
+		inode->i_op = &simple_dir_inode_operations;
 		inode->i_fop = &lab4fs_file_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
 		mark_inode_dirty(inode);
