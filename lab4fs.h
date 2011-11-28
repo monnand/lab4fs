@@ -108,7 +108,7 @@ struct lab4fs_super_block {
 	__le32 s_root_inode;
     __le32 s_first_inode;
 
-	__le32 s_free_inode_count;
+	__le32 s_free_inodes_count;
 	__le32 s_free_data_blocks_count;
 };
 
@@ -151,7 +151,7 @@ struct lab4fs_sb_info {
 	__u32 s_data_blocks;
 	rwlock_t rwlock;
     __u32 s_next_generation;
-	__u32 s_free_inode_count;
+	__u32 s_free_inodes_count;
 	__u32 s_free_data_blocks_count;
     struct lab4fs_bitmap s_inode_bitmap;
     struct lab4fs_bitmap s_data_bitmap;
