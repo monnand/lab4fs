@@ -41,7 +41,7 @@ static unsigned char lab4fs_type_by_mode[S_IFMT >> S_SHIFT] = {
 	[S_IFLNK >> S_SHIFT]	= LAB4FS_FT_SYMLINK,
 };
 
-static inline void lab4fs_set_de_type(ext2_dirent *de, struct inode *inode)
+static inline void lab4fs_set_de_type(lab4fs_dir_entry *de, struct inode *inode)
 {
 	mode_t mode = inode->i_mode;
     de->file_type = lab4fs_type_by_mode[(mode & S_IFMT)>>S_SHIFT];
