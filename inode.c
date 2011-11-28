@@ -378,7 +378,6 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
     read_unlock(&sbi->rwlock);
 
     ino = bitmap_find_next_zero_bit(&sbi->s_inode_bitmap, sbi->s_first_ino, 1);
-    LAB4DEBUG("new inode number: %u\n", ino);
 
     if (ino >= sbi->s_inodes_count || ino < sbi->s_first_ino) {
         err = -ENOSPC;
@@ -407,6 +406,7 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 	insert_inode_hash(inode);
     mark_inode_dirty(inode);
 
+    LAB4DEBUG("new inode number: %u\n", inode->i_ino);
     return inode;
 
 fail:
