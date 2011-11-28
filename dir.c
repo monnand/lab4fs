@@ -26,6 +26,44 @@ lab4fs_last_byte(struct inode *inode, unsigned long page_nr)
 /* TODO */
 #define lab4fs_check_page(page) 
 
+static struct page *lab4fs_get_page(struct inode *dir, unsigned long n)
+{
+    struct address_space *mapping = dir->i_mapping;
+	struct page *page = read_cache_page(mapping, n,
+				(filler_t*)mapping->a_ops->readpage, NULL);
+    if (!IS_ERR(page)) {
+        wait_on_page_locked(page);
+        kmap(page);
+        if (!PageUptodate(page))
+            goto fail;
+        if (!PageChecked(page))
+            lab4fs_check_page(page);
+        if (PageError(page))
+            goto fail;
+    }
+    return page;
+
+fail:
+    lab4fs_put_page(page);
+    return ERR_PTR(-EIO);
+}
+
+static inline lab4fs_match(int len, const char *const name,
+        struct lab4fs_dir_entry *de)
+{
+    if (len != de->name_len)
+        return 0;
+    if (!de->inode)
+        return 0;
+    return !memcmp(name, de->name, len);
+}
+
+static inline struct lab4fs_dir_entry *
+lab4fs_next_entry(struct lab4fs_dir_entry *p)
+{
+    return (struct lab4fs_dir_entry *)
+        ((char *)p + le16_to_cpu(p->rec_len));
+}
 
 static inline void lab4fs_inc_count(struct inode *inode)
 {
@@ -114,7 +152,7 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
         kaddr = page_address(page);
 
         dir_end = kaddr + lab4fs_last_byte(dir, n);
-        de = (lab4fs_dir_entry *)kaddr;
+        de = (struct lab4fs_dir_entry *)kaddr;
         kaddr += PAGE_CACHE_SIZE - reclen;
 
         while((char *)de <= kaddr) {
@@ -176,44 +214,6 @@ out:
 out_unlock:
     unlock_page(page);
     goto out_put;
-}
-static struct page *lab4fs_get_page(struct inode *dir, unsigned long n)
-{
-    struct address_space *mapping = dir->i_mapping;
-	struct page *page = read_cache_page(mapping, n,
-				(filler_t*)mapping->a_ops->readpage, NULL);
-    if (!IS_ERR(page)) {
-        wait_on_page_locked(page);
-        kmap(page);
-        if (!PageUptodate(page))
-            goto fail;
-        if (!PageChecked(page))
-            lab4fs_check_page(page);
-        if (PageError(page))
-            goto fail;
-    }
-    return page;
-
-fail:
-    lab4fs_put_page(page);
-    return ERR_PTR(-EIO);
-}
-
-static inline lab4fs_match(int len, const char *const name,
-        struct lab4fs_dir_entry *de)
-{
-    if (len != de->name_len)
-        return 0;
-    if (!de->inode)
-        return 0;
-    return !memcmp(name, de->name, len);
-}
-
-static inline struct lab4fs_dir_entry *
-lab4fs_next_entry(struct lab4fs_dir_entry *p)
-{
-    return (struct lab4fs_dir_entry *)
-        ((char *)p + le16_to_cpu(p->rec_len));
 }
 
 static unsigned char lab4fs_filetype_table[LAB4FS_FT_MAX] = {
