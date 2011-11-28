@@ -26,6 +26,10 @@ lab4fs_last_byte(struct inode *inode, unsigned long page_nr)
 		last_byte = PAGE_CACHE_SIZE;
 	return last_byte;
 }
+
+/* TODO */
+#define lab4fs_check_page(page) 
+
 static struct page *lab4fs_get_page(struct inode *dir, unsigned long n)
 {
     struct address_space *mapping = dir->i_mapping;
@@ -37,7 +41,7 @@ static struct page *lab4fs_get_page(struct inode *dir, unsigned long n)
         if (!PageUptodate(page))
             goto fail;
         if (!PageChecked(page))
-            ext2_check_page(page);
+            lab4fs_check_page(page);
         if (PageError(page))
             goto fail;
     }
@@ -88,7 +92,7 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
 	if (pos > inode->i_size - LAB4FS_DIR_REC_LEN(1))
 		goto success;
 
-    type = lab4fs_filetype_table;
+    types = lab4fs_filetype_table;
 
     LAB4DEBUG("I will read %lu pages for this dir\n", npages);
 
@@ -104,7 +108,7 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
             continue;
         }
 		kaddr = page_address(page);
-		de = (ext2_dirent *)(kaddr+offset);
+		de = (struct lab4fs_dir_entry *)(kaddr+offset);
 		limit = kaddr + lab4fs_last_byte(inode, n) - LAB4FS_DIR_REC_LEN(1);
 		for ( ;(char*)de <= limit; de = lab4fs_next_entry(de)) {
 			if (de->rec_len == 0) {
@@ -117,7 +121,7 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
                 int over;
                 unsigned char d_type = DT_UNKNOWN;
 
-                d_type = type[de->file_type];
+                d_type = types[de->file_type];
 
                 offset = (char *)de - kaddr;
 #ifdef CONFIG_LAB4FS_DEBUG
@@ -135,7 +139,7 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
             }
             filp->f_pos += le16_to_cpu(de->rec_len);
         }
-        ext2_put_page(page);
+        lab4fs_put_page(page);
     }
 
 success:
