@@ -194,7 +194,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     LAB4DEBUG("The root struct is @ 0x%x\n", (__u32)root);
     print_inode(root);
     LAB4DEBUG("I will report error here!\n");
-    LAB4DEBUG("OK the addr is 0x%x\n", (__u32)(inode->i_data.assoc_mapping));
+    LAB4DEBUG("OK the addr is 0x%x\n", (__u32)(root->i_data.assoc_mapping));
     err = -EIO;
     goto out_fail;
     if (root == NULL) {
