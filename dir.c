@@ -76,11 +76,9 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
 {
     loff_t pos = filp->f_pos;
     struct inode *inode = filp->f_dentry->d_inode;
-    struct super_block *sb = inode->i_sb;
     unsigned int offset = pos & ~PAGE_CACHE_MASK;
     unsigned long n = pos >> PAGE_CACHE_SHIFT;
     unsigned long npages = dir_pages(inode);
-	unsigned chunk_mask = ~(lab4fs_chunk_size(inode)-1);
 	unsigned char *types = NULL;
 	int ret;
 
