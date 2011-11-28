@@ -42,13 +42,31 @@ static void lab4fs_destroy_inode(struct inode *inode)
 	kmem_cache_free(lab4fs_inode_cachep, LAB4FS_I(inode));
 }
 
+void lab4fs_write_super (struct super_block * sb)
+{
+    struct lab4fs_super_block *es;
+    lock_kernel();
+    es = LAB4FS_SB(sb)->s_sb;
+    mark_buffer_dirty(LAB4FS_SB(sb)->s_sbh);
+    sb->s_dirt = 0;
+    unlock_kernel();
+}
+
+static 
+int lab4fs_statfs(struct super_block *sb, struct kstatfs *buf)
+{
+    return 0;
+}
+
 struct super_operations lab4fs_super_ops = {
     .alloc_inode    = lab4fs_alloc_inode,
     .destroy_inode  = lab4fs_destroy_inode,
     .read_inode     = lab4fs_read_inode,
+    .write_inode    = lab4fs_write_inode,
     .statfs         = simple_statfs,
     .drop_inode     = generic_delete_inode,
     .put_super      = lab4fs_put_super,
+    .write_super    = lab4fs_write_super,
 };
 
 /*
