@@ -79,16 +79,6 @@
 } while(0)
 #endif
 
-#ifdef CONFIG_LAB4FS_DEBUG
-void print_buffer_head(struct buffer_head *bh, int start, int len);
-void print_raw_inode(struct lab4fs_inode *raw_inode);
-void print_inode(struct inode *inode);
-#else
-#define print_buffer_head(bh, start, len)
-#define print_raw_inode(ri)
-#define print_inode(inode)
-#endif
-
 #define LAB4FS_FIRST_INO(s)   (LAB4FS_SB(s)->s_first_ino)
 #define LAB4FS_INODE_SIZE(s)   (LAB4FS_SB(s)->s_inode_size)
 
@@ -191,6 +181,16 @@ struct lab4fs_dir_entry {
     __u8    file_type;
 	char	name[LAB4FS_NAME_LEN];	/* File name */
 };
+
+#ifdef CONFIG_LAB4FS_DEBUG
+void print_buffer_head(struct buffer_head *bh, int start, int len);
+void print_raw_inode(struct lab4fs_inode *raw_inode);
+void print_inode(struct inode *inode);
+#else
+#define print_buffer_head(bh, start, len)
+#define print_raw_inode(ri)
+#define print_inode(inode)
+#endif
 
 static inline struct lab4fs_sb_info *LAB4FS_SB(struct super_block *sb)
 {
