@@ -63,7 +63,7 @@ void lab4fs_read_inode(struct inode *inode)
 	struct buffer_head * bh;
     struct lab4fs_inode *raw_inode = lab4fs_get_inode(inode->i_sb, ino, &bh);
 
-	if (IS_ERR(raw_inode))
+	if (bh == NULL)
  		goto bad_inode;
 
     write_lock(&ei->rwlock);
