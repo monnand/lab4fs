@@ -34,9 +34,7 @@ void print_buffer_head(struct buffer_head *bh, int start, int len)
     for (i = 0; i < len; i++) {
         if (i % 32 == 0)
             printk("\n" KERN_INFO);
-        if (i % 4 == 0)
-            printk(" ");
-        printk("%02x", data[i]);
+        printk("%02x ", data[i]);
     }
     printk("\n");
 }
