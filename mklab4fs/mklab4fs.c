@@ -634,6 +634,7 @@ int write_root_dir(int fd, struct lab4fs_sb_info *sb)
         inode.i_gid = 0;
     }
     inode.i_atime = inode.i_ctime = inode.i_mtime = time(NULL);
+    inode.i_dtime = 0;
     inode.i_links_count = 2;
     inode.i_blocks = 0;
     inode.i_dir_acl = 0755;
