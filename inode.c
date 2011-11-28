@@ -124,7 +124,7 @@ void lab4fs_read_inode(struct inode *inode)
         ei->i_dir_acl = le32_to_cpu(raw_inode->i_dir_acl);
 
 	/*
-	 * NOTE! The in-memory inode i_data array is in little-endian order
+	 * NOTE! The in-memory inode i_block array is in little-endian order
 	 * even on big-endian machines: we do NOT byteswap the block numbers!
 	 */
 	for (n = 0; n < LAB4FS_N_BLOCKS; n++)
@@ -136,7 +136,7 @@ void lab4fs_read_inode(struct inode *inode)
 
     if (S_ISREG(inode->i_mode)) {
         LAB4DEBUG("I got a file inode, ino: %lu\n", ino);
-		inode->i_op = &simple_dir_operations;
+		inode->i_op = &simple_dir_inode_operations;
 		inode->i_fop = &lab4fs_file_operations;
     } else if (S_ISDIR(inode->i_mode)) {
         LAB4DEBUG("I got a dir inode, ino: %lu\n", ino);
@@ -404,7 +404,7 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
 	inode->i_blocks = 0;
 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
-	memset(ei->i_data, 0, sizeof(ei->i_data));
+	memset(ei->i_block, 0, sizeof(ei->i_block));
 	ei->i_file_acl = 0;
 	ei->i_dir_acl = 0;
 	inode->i_generation = sbi->s_next_generation++;

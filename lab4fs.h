@@ -151,6 +151,8 @@ struct lab4fs_sb_info {
 	__u32 s_data_blocks;
 	rwlock_t rwlock;
     __u32 s_next_generation;
+	__u32 s_free_inode_count;
+	__u32 s_free_data_blocks_count;
     struct lab4fs_bitmap s_inode_bitmap;
     struct lab4fs_bitmap s_data_bitmap;
 };
@@ -198,6 +200,7 @@ static inline struct lab4fs_inode_info *LAB4FS_I(struct inode *inode)
 extern struct address_space_operations lab4fs_aops;
 extern struct file_operations lab4fs_dir_operations;
 extern struct inode_operations lab4fs_dir_inode_operations;
+extern struct file_operations lab4fs_file_operations;
 
 void lab4fs_read_inode(struct inode *inode);
 int lab4fs_write_inode(struct inode *inode, int wait);

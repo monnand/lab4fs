@@ -145,6 +145,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_inode_table = le32_to_cpu(es->s_inode_table);
     sbi->s_data_blocks = le32_to_cpu(es->s_data_blocks);
     sbi->s_next_generation = 0;
+    sbi->s_free_inodes_count = le32_to_cpu(es->s_free_inodes_count);
+    sbi->s_free_data_blocks_count = le32_to_cpu(es->s_free_data_blocks_count);
 
     rwlock_init(&sbi->rwlock);
 
