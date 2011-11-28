@@ -131,11 +131,12 @@ __u32 bitmap_find_next_zero_bit(struct lab4fs_bitmap *bitmap, int off, int set)
     else
         read_lock(&bitmap->rwlock);
     n = off >> bitmap->log_nr_bits_per_block;
-    offset = n % bitmap->nr_bits_per_block;
+    offset = off % bitmap->nr_bits_per_block;
     ret = -1;
     i = -1;
 
     LAB4DEBUG("Trying to find a zero bit at bh %u, from %u\n", n, offset);
+    print_buffer_head(bitmap->bhs[n], 0, 8);
     data = bitmap->bhs[n]->b_data;
     i = find_next_zero_bit(data, bitmap->nr_bits_per_block, offset);
     LAB4DEBUG("%uth bit is zero!\n", i);
