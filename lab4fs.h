@@ -79,6 +79,12 @@
 } while(0)
 #endif
 
+#ifdef CONFIG_LAB4FS_DEBUG
+extern void print_buffer_head(struct buffer_head *bh, int start, int len);
+#else
+#define print_buffer_head(bh, start, len)
+#endif
+
 #define LAB4FS_FIRST_INO(s)   (LAB4FS_SB(s)->s_first_ino)
 #define LAB4FS_INODE_SIZE(s)   (LAB4FS_SB(s)->s_inode_size)
 
@@ -143,7 +149,8 @@ struct lab4fs_sb_info {
     __u32 s_root_inode;
 	__u32 s_inode_table;
 	__u32 s_data_blocks;
-
+	rwlock_t rwlock;
+    __u32 s_next_generation;
     struct lab4fs_bitmap s_inode_bitmap;
     struct lab4fs_bitmap s_data_bitmap;
 };
@@ -162,6 +169,7 @@ struct lab4fs_inode_info {
 	__le32	i_block[LAB4FS_N_BLOCKS];/* Pointers to blocks */
 	__u32	i_file_acl;	/* File ACL */
 	__u32	i_dir_acl;	/* Directory ACL */
+    unsigned i_dir_start_lookup;
     rwlock_t rwlock;
     struct inode vfs_inode;
     struct buffer_head *bh;
@@ -189,8 +197,20 @@ static inline struct lab4fs_inode_info *LAB4FS_I(struct inode *inode)
 
 extern struct address_space_operations lab4fs_aops;
 extern struct file_operations lab4fs_dir_operations;
+extern struct inode_operations lab4fs_dir_inode_operations;
 
 void lab4fs_read_inode(struct inode *inode);
+int lab4fs_write_inode(struct inode *inode, int wait);
+int lab4fs_sync_inode(struct inode *inode);
+void lab4fs_put_inode(struct inode *inode);
+struct inode *lab4fs_new_inode(struct inode *dir, int mode);
+
+int lab4fs_add_link (struct dentry *dentry, struct inode *inode);
+struct lab4fs_dir_entry * lab4fs_find_entry (struct inode * dir,
+			struct dentry *dentry, struct page ** res_page);
+ino_t lab4fs_inode_by_name(struct inode *dir, struct dentry *dentry);
+struct dentry *lab4fs_get_parent(struct dentry *child);
+
 int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
         __u32 start_block);
 void bitmap_set_bit(struct lab4fs_bitmap *bitmap, int nr);
@@ -198,6 +218,7 @@ int bitmap_test_and_set_bit(struct lab4fs_bitmap *bitmap, int nr);
 void bitmap_clear_bit(struct lab4fs_bitmap *bitmap, int nr);
 int bitmap_test_and_clear_bit(struct lab4fs_bitmap *bitmap, int nr);
 int bitmap_test_bit(struct lab4fs_bitmap *bitmap, int nr);
+__u32 bitmap_find_next_zero_bit(struct lab4fs_bitmap *bitmap, int off, int set);
 
 #endif
 

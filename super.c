@@ -32,8 +32,10 @@ static struct inode *lab4fs_alloc_inode(struct super_block *sb)
 	ei = (struct lab4fs_inode_info *)kmem_cache_alloc(lab4fs_inode_cachep, SLAB_KERNEL);
 	if (!ei)
 		return NULL;
+    memset(ei, 0, sizeof(*ei));
     ei->vfs_inode.i_sb = sb;
     rwlock_init(&ei->rwlock);
+    ei->i_dir_start_lookup = 0;
 	return &ei->vfs_inode;
 }
 
@@ -46,44 +48,12 @@ struct super_operations lab4fs_super_ops = {
     .alloc_inode    = lab4fs_alloc_inode,
     .destroy_inode  = lab4fs_destroy_inode,
     .read_inode     = lab4fs_read_inode,
+    .put_inode      = lab4fs_put_inode,
+    .write_inode    = lab4fs_write_inode,
     .statfs         = simple_statfs,
     .drop_inode     = generic_delete_inode,
     .put_super      = lab4fs_put_super,
 };
-
-/*
-struct inode *lab4fs_get_inode(struct super_block *sb, int mode, dev_t dev)
-{
-    struct inode *inode;
-
-    inode = new_inode(sb);
-
-    if (inode) {
-        inode->i_mode = mode;
-        inode->i_uid = current->fsuid;
-        inode->i_gid = current->fsgid;
-        inode->i_blocks = 0;
-        inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-        inode->i_sb = sb;
-
-        LAB4DEBUG("inode mode: %u, is dir: %d\n", inode->i_mode, S_ISDIR(inode->i_mode));
-
-        switch (mode & S_IFMT) {
-        case S_IFDIR:
-            inode->i_op = &simple_dir_inode_operations;
-            inode->i_fop = &lab4fs_file_ops;
-            inode->i_op = &lab4fs_inode_ops;
-            inode->i_nlink++;
-            break;
-        case S_IFREG:
-        default:
-            init_special_inode(inode, mode, dev);
-            break;
-        }
-    }
-    return inode;
-}
-*/
 
 static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 {
@@ -174,6 +144,9 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_log_inode_size = log2(sbi->s_inode_size);
     sbi->s_inode_table = le32_to_cpu(es->s_inode_table);
     sbi->s_data_blocks = le32_to_cpu(es->s_data_blocks);
+    sbi->s_next_generation = 0;
+
+    rwlock_init(&sbi->rwlock);
 
     sbi->s_inode_bitmap.nr_valid_bits = le32_to_cpu(es->s_inodes_count);
     sbi->s_data_bitmap.nr_valid_bits = le32_to_cpu(es->s_blocks_count) 

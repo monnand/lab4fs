@@ -119,3 +119,60 @@ int bitmap_test_bit(struct lab4fs_bitmap *bitmap, int nr)
     return ret;
 }
 
+__u32 bitmap_find_next_zero_bit(struct lab4fs_bitmap *bitmap, int off, int set)
+{
+    __u32 n, offset;
+    void *data;
+    __u32 ret, i;
+    if (unlikely(off < 0 || off >= bitmap->nr_valid_bits))
+        return -1;
+
+    if (set)
+        write_lock(&bitmap->rwlock);
+    else
+        read_lock(&bitmap->rwlock);
+    n = off >> bitmap->log_nr_bits_per_block;
+    offset = n % bitmap->nr_bits_per_block;
+    ret = -1;
+    i = -1;
+    data = bitmap->bhs[n]->b_data;
+    i = find_next_zero_bit(data, bitmap->nr_bits_per_block, offset);
+    ret = n << bitmap->log_nr_bits_per_block;
+    if (i < 0 || i < off || i >= bitmap->nr_bits_per_block) {
+        offset = 0;
+        for (n++; n < bitmap->nr_bhs; n++) {
+            i = -1;
+            data = bitmap->bhs[n]->b_data;
+            i = find_next_zero_bit(data, bitmap->nr_bits_per_block, 0);
+            if (i < 0 || i >= bitmap->nr_bits_per_block) {
+                ret += bitmap->nr_bits_per_block;
+                continue;
+            } else {
+                ret += i;
+                if (ret > bitmap->nr_valid_bits)
+                    goto failed;
+                goto got_it;
+            }
+        }
+    } else {
+        ret += i;
+    }
+
+got_it:
+    if (set) {
+        set_bit(i, data);
+        mark_buffer_dirty(bitmap->bhs[n]);
+        write_unlock(&bitmap->rwlock);
+    } else
+        read_unlock(&bitmap->rwlock);
+
+    return ret;
+
+failed:
+    if (set)
+        write_unlock(&bitmap->rwlock);
+    else
+        read_unlock(&bitmap->rwlock);
+    return bitmap->nr_valid_bits + 1;
+}
+

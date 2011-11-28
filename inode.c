@@ -48,8 +48,6 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     struct buffer_head *bh;
     __u32 block, offset;
 
-    LAB4DEBUG("trying to get inode: %lu\n", ino);
-
     *p = NULL;
     if ((ino != LAB4FS_ROOT_INO && ino < LAB4FS_FIRST_INO(sb)) ||
             ino > le32_to_cpu(LAB4FS_SB(sb)->s_sb->s_inodes_count))
@@ -61,11 +59,6 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
         goto Eio;
     *p = bh;
     offset = offset << (LAB4FS_SB(sb)->s_log_inode_size);
-    LAB4DEBUG("read block: %u:%u, blocksize: %u; blockbits: %u\n",
-            block, offset, sb->s_blocksize,
-            sb->s_bdev->bd_inode->i_blkbits);
-    print_buffer_head(bh, 0, 128);
-    print_buffer_head(bh, 128, 128);
 	return (struct lab4fs_inode *) (bh->b_data + offset);
 
 Einval:
@@ -142,13 +135,16 @@ void lab4fs_read_inode(struct inode *inode)
      */
 
     if (S_ISREG(inode->i_mode)) {
+        LAB4DEBUG("I got a file inode, ino: %lu\n", ino);
+		inode->i_op = &simple_dir_operations;
+		inode->i_fop = &lab4fs_file_operations;
     } else if (S_ISDIR(inode->i_mode)) {
-
         LAB4DEBUG("I got a dir inode, ino: %lu\n", ino);
-        inode->i_op = &simple_dir_inode_operations;
         /*
+        inode->i_op = &simple_dir_inode_operations;
         inode->i_fop = &simple_dir_operations;
         */
+        inode->i_op = &lab4fs_dir_inode_operations;
         inode->i_fop = &lab4fs_dir_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
     } else {
@@ -289,6 +285,138 @@ changed:
 		partial--;
 	}
 	goto reread;
+}
+
+static int lab4fs_update_inode(struct inode *inode, int do_sync)
+{
+    struct lab4fs_inode_info *ei = LAB4FS_I(inode);
+    struct super_block *sb = inode->i_sb;
+    ino_t ino = inode->i_ino;
+    uid_t uid = inode->i_uid;
+    gid_t gid = inode->i_gid;
+
+    struct buffer_head *bh;
+
+    struct lab4fs_inode *raw_inode = lab4fs_get_inode(sb, ino, &bh);
+
+    int n;
+    int err = 0;
+
+    if (IS_ERR(raw_inode))
+        return -EIO;
+
+    raw_inode->i_mode = cpu_to_le16(inode->i_mode);
+    raw_inode->i_uid = cpu_to_le32(uid);
+    raw_inode->i_gid = cpu_to_le32(gid);
+    raw_inode->i_links_count = cpu_to_le16(inode->i_nlink);
+    raw_inode->i_size = cpu_to_le32(inode->i_size);
+	raw_inode->i_atime = cpu_to_le32(inode->i_atime.tv_sec);
+	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
+	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
+	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
+
+	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
+	raw_inode->i_file_acl = cpu_to_le32(ei->i_file_acl);
+	if (!S_ISREG(inode->i_mode))
+		raw_inode->i_dir_acl = cpu_to_le32(ei->i_dir_acl);
+	for (n = 0; n < LAB4FS_N_BLOCKS; n++)
+		raw_inode->i_block[n] = ei->i_block[n];
+	mark_buffer_dirty(bh);
+	if (do_sync) {
+		sync_dirty_buffer(bh);
+		if (buffer_req(bh) && !buffer_uptodate(bh)) {
+			printk ("IO error syncing ext2 inode [%s:%08lx]\n",
+				sb->s_id, (unsigned long) ino);
+			err = -EIO;
+		}
+	}
+	brelse (bh);
+	return err;
+}
+
+int lab4fs_write_inode(struct inode *inode, int wait)
+{
+    return lab4fs_update_inode(inode, wait);
+}
+
+int lab4fs_sync_inode(struct inode *inode)
+{
+	struct writeback_control wbc = {
+		.sync_mode = WB_SYNC_ALL,
+		.nr_to_write = 0,	/* sys_fsync did this */
+	};
+	return sync_inode(inode, &wbc);
+}
+
+/*
+ * Called at each iput().
+ */
+void lab4fs_put_inode(struct inode *inode)
+{
+    return;
+}
+
+
+/* Create a new inode under dir */
+struct inode *lab4fs_new_inode(struct inode *dir, int mode)
+{
+    struct super_block *sb;
+    struct lab4fs_inode_info *ei;
+    struct lab4fs_sb_info *sbi;
+    struct inode *inode;
+    struct buffer_head *bh;
+    int err = 0;
+	ino_t ino = 0;
+
+    sb = dir->i_sb;
+	inode = new_inode(sb);
+	if (!inode)
+		return ERR_PTR(-ENOMEM);
+
+    ei = LAB4FS_I(inode);
+    sbi = LAB4FS_SB(sb);
+
+    read_lock(&sbi->rwlock);
+    if (sbi->s_free_inodes_count == 0) {
+        read_unlock(&sbi->rwlock);
+        err = -ENOSPC;
+        goto fail;
+    }
+    read_unlock(&sbi->rwlock);
+
+    ino = bitmap_find_next_zero_bit(&sbi->s_inode_bitmap, 0, 1);
+    if (ino >= sbi->s_inodes_count || ino < sbi->s_first_inode) {
+        err = -ENOSPC;
+        goto fail;
+    }
+
+    write_lock(&sbi->rwlock);
+    sbi->s_free_inodes_count--;
+	sb->s_dirt = 1;
+	inode->i_generation = sbi->s_next_generation++;
+    write_unlock(&sbi->rwlock);
+
+    inode->i_uid = current->fsuid;
+    inode->i_gid = current->fsgid;
+	inode->i_mode = mode;
+
+	inode->i_ino = ino;
+	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
+	inode->i_blocks = 0;
+	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+	memset(ei->i_data, 0, sizeof(ei->i_data));
+	ei->i_file_acl = 0;
+	ei->i_dir_acl = 0;
+	inode->i_generation = sbi->s_next_generation++;
+	insert_inode_hash(inode);
+    mark_inode_dirty(inode);
+
+    return inode;
+
+fail:
+	make_bad_inode(inode);
+	iput(inode);
+	return ERR_PTR(err);
 }
 
 static int lab4fs_writepage(struct page *page, struct writeback_control *wbc)
