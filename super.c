@@ -44,6 +44,23 @@ static void lab4fs_destroy_inode(struct inode *inode)
 	kmem_cache_free(lab4fs_inode_cachep, LAB4FS_I(inode));
 }
 
+static void lab4fs_commit_super (struct super_block * sb,
+			       struct lab4fs_super_block * es)
+{
+	mark_buffer_dirty(LAB4FS_SB(sb)->s_sbh);
+	sb->s_dirt = 0;
+}
+
+void lab4fs_write_super (struct super_block * sb)
+{
+	struct lab4fs_super_block *es;
+	lock_kernel();
+	es = LAB4FS_SB(sb)->s_sb;
+	lab4fs_commit_super(sb, es);
+	sb->s_dirty = 0;
+	unlock_kernel();
+}
+
 struct super_operations lab4fs_super_ops = {
     .alloc_inode    = lab4fs_alloc_inode,
     .destroy_inode  = lab4fs_destroy_inode,
@@ -53,6 +70,7 @@ struct super_operations lab4fs_super_ops = {
     .statfs         = simple_statfs,
     .drop_inode     = generic_delete_inode,
     .put_super      = lab4fs_put_super,
+    .write_super    = lab4fs_write_super,
 };
 
 static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
@@ -147,6 +165,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_next_generation = 0;
     sbi->s_free_inodes_count = le32_to_cpu(es->s_free_inodes_count);
     sbi->s_free_data_blocks_count = le32_to_cpu(es->s_free_data_blocks_count);
+    sbi->s_first_inode = le32_to_cpu(es->s_first_inode);
 
     rwlock_init(&sbi->rwlock);
 

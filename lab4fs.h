@@ -147,6 +147,7 @@ struct lab4fs_sb_info {
     unsigned s_first_ino;
     unsigned s_inode_size;
     __u32 s_root_inode;
+    __u32 s_first_inode;
 	__u32 s_inode_table;
 	__u32 s_data_blocks;
 	rwlock_t rwlock;
