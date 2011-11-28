@@ -94,7 +94,9 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
 
     types = lab4fs_filetype_table;
 
+    /*
     LAB4DEBUG("I will read %lu pages for this dir\n", npages);
+    */
 
     for (; n < npages; n++ offset = 0) {
         char *kaddr, *limit;
