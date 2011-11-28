@@ -63,6 +63,7 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     LAB4DEBUG("read block: %u:%u, blocksize: %u; blockbits: %u\n",
             block, offset, sb->s_blocksize,
             sb->s_bdev->bd_inode->i_blkbits);
+    print_buffer_head(bh, offset, 12);
 	return (struct lab4fs_inode *) (bh->b_data + offset);
 
 Einval:
