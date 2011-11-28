@@ -378,6 +378,7 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
     read_unlock(&sbi->rwlock);
 
     ino = bitmap_find_next_zero_bit(&sbi->s_inode_bitmap, sbi->s_first_ino, 1);
+    LAB4DEBUG("new inode number: %u\n", ino);
 
     if (ino >= sbi->s_inodes_count || ino < sbi->s_first_ino) {
         err = -ENOSPC;
@@ -403,7 +404,6 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 	ei->i_dir_acl = 0;
 	inode->i_generation = sbi->s_next_generation++;
 
-    LAB4DEBUG("new inode number: %u\n", ino);
     LAB4DEBUG("OK, I have to stop here\n");
     err = -ENOSPC;
 	return ERR_PTR(err);
