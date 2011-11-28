@@ -57,6 +57,16 @@ Eio:
 	return ERR_PTR(-EIO);
 }
 
+#ifdef CONFIG_LAB4FS_DEBUG
+void print_inode(struct lab4fs_inode_info *ei, struct lab4fs_inode *raw_inode)
+{
+    LAB4DEBUG("mode: %u\n", le32_to_cpu(raw_inode->i_mode));
+    LAB4DEBUG("nlink: %u\n", le32_to_cpu(raw_inode->i_links_count));
+}
+#else
+#define print_inode(ei, ri)
+#endif
+
 void lab4fs_read_inode(struct inode *inode)
 {
     struct lab4fs_inode_info *ei = LAB4FS_I(inode);
