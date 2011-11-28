@@ -47,18 +47,18 @@ static void lab4fs_destroy_inode(struct inode *inode)
 static void lab4fs_commit_super (struct super_block * sb,
 			       struct lab4fs_super_block * es)
 {
-	mark_buffer_dirty(LAB4FS_SB(sb)->s_sbh);
-	sb->s_dirt = 0;
+    mark_buffer_dirty(LAB4FS_SB(sb)->s_sbh);
+    sb->s_dirt = 0;
 }
 
 void lab4fs_write_super (struct super_block * sb)
 {
-	struct lab4fs_super_block *es;
-	lock_kernel();
-	es = LAB4FS_SB(sb)->s_sb;
-	lab4fs_commit_super(sb, es);
-	sb->s_dirty = 0;
-	unlock_kernel();
+    struct lab4fs_super_block *es;
+    lock_kernel();
+    es = LAB4FS_SB(sb)->s_sb;
+    lab4fs_commit_super(sb, es);
+    sb->s_dirt = 0;
+    unlock_kernel();
 }
 
 struct super_operations lab4fs_super_ops = {
