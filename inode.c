@@ -385,6 +385,9 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
         goto fail;
     }
 
+    LAB4DEBUG("OK, I have to stop here\n");
+    err = -ENOSPC;
+    goto fail;
     write_lock(&sbi->rwlock);
     sbi->s_free_inodes_count--;
 	sb->s_dirt = 1;
@@ -404,9 +407,6 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 	ei->i_dir_acl = 0;
 	inode->i_generation = sbi->s_next_generation++;
 
-    LAB4DEBUG("OK, I have to stop here\n");
-    err = -ENOSPC;
-    goto fail;
 	insert_inode_hash(inode);
     mark_inode_dirty(inode);
 
@@ -414,7 +414,7 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 
 fail:
 	make_bad_inode(inode);
-	iput(inode);
+//	iput(inode);
 	return ERR_PTR(err);
 }
 
