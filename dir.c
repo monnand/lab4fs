@@ -82,18 +82,6 @@ static inline unsigned lab4fs_chunk_size(struct inode *inode)
 	return inode->i_sb->s_blocksize;
 }
 
-static inline int lab4fs_add_nodir(struct dentry *dentry, struct inode *inode)
-{
-    int err = lab4fs_add_link(dentry, inode);
-    if (!err) {
-        d_instantiate(dentry, inode);
-        return 0;
-    }
-    lab4fs_dec_count(inode);
-    iput(inode);
-    return err;
-}
-
 #define S_SHIFT 12
 static unsigned char lab4fs_type_by_mode[S_IFMT >> S_SHIFT] = {
 	[S_IFREG >> S_SHIFT]	= LAB4FS_FT_REG_FILE,
@@ -221,6 +209,18 @@ out:
 out_unlock:
     unlock_page(page);
     goto out_put;
+}
+
+static inline int lab4fs_add_nodir(struct dentry *dentry, struct inode *inode)
+{
+    int err = lab4fs_add_link(dentry, inode);
+    if (!err) {
+        d_instantiate(dentry, inode);
+        return 0;
+    }
+    lab4fs_dec_count(inode);
+    iput(inode);
+    return err;
 }
 
 static unsigned char lab4fs_filetype_table[LAB4FS_FT_MAX] = {
