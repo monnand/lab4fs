@@ -84,9 +84,6 @@ void print_inode(struct inode *inode)
     LAB4DEBUG("mode: %u\n", inode->i_mode);
     LAB4DEBUG("nlink: %u\n", inode->i_nlink);
 }
-#else
-#define print_raw_inode(ri)
-#define print_inode(inode)
 #endif
 
 void lab4fs_read_inode(struct inode *inode)

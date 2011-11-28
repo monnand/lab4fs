@@ -81,8 +81,12 @@
 
 #ifdef CONFIG_LAB4FS_DEBUG
 extern void print_buffer_head(struct buffer_head *bh, int start, int len);
+extern void print_raw_inode(struct lab4fs_inode *raw_inode);
+extern void print_inode(struct inode *inode);
 #else
 #define print_buffer_head(bh, start, len)
+#define print_raw_inode(ri)
+#define print_inode(inode)
 #endif
 
 #define LAB4FS_FIRST_INO(s)   (LAB4FS_SB(s)->s_first_ino)
