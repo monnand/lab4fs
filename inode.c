@@ -82,7 +82,7 @@ void lab4fs_read_inode(struct inode *inode)
 		/* this inode is deleted */
 		brelse (bh);
         LAB4DEBUG("nlinke: %u, mode: %u, dtime %u\n",
-                inode->i_nlinke, inode->i_mode, ei->i_dtime);
+                inode->i_nlink, inode->i_mode, ei->i_dtime);
 		goto bad_inode;
 	}
 	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
