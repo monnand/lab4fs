@@ -33,8 +33,8 @@ lab4fs_last_byte(struct inode *inode, unsigned long page_nr)
 static struct page *lab4fs_get_page(struct inode *dir, unsigned long n)
 {
     struct address_space *mapping = dir->i_mapping;
-    struct page *page = read_cache_page(mapping, n,
-            (filler_t)mapping->a_ops->readpage, NULL);
+	struct page *page = read_cache_page(mapping, n,
+				(filler_t*)mapping->a_ops->readpage, NULL);
     if (!IS_ERR(page)) {
         wait_on_page_locked(page);
         kmap(page);
@@ -104,7 +104,7 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
 
         if(IS_ERR(page)) {
             LAB4ERROR("bad page in #%lu\n", inode->i_ino);
-            file->f_op += PAGE_CACHE_SIZE - offset;
+            filp->f_op += PAGE_CACHE_SIZE - offset;
             continue;
         }
 		kaddr = page_address(page);
