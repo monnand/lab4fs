@@ -188,6 +188,10 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
     LAB4DEBUG("Now loading root dir\n");
     root = iget(sb, sbi->s_root_inode);
+    LAB4DEBUG("The root struct is @ 0x%x\n", (__u32)root);
+    LAB4DEBUG("I will report error here!\n");
+    err = -EIO;
+    goto out_fail;
     if (root == NULL) {
         err = -EIO;
         goto failed_mount;
@@ -200,10 +204,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     }
 
     return 0;
-
-    LAB4DEBUG("I will report error here!\n");
-    err = -EIO;
-    goto out_fail;
 failed_mount:
 out_fail:
 	kfree(sbi);
