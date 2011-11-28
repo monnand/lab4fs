@@ -381,8 +381,8 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 
     if (ino >= sbi->s_inodes_count || ino < sbi->s_first_ino) {
         err = -ENOSPC;
-        LAB4DEBUG("new inode number: %u\n", inode->i_ino);
-        LAB4DEBUG("WTF?! No space: nr_inodes: %u; first_ino: %u",
+        LAB4DEBUG("new inode number: %u\n", ino);
+        LAB4DEBUG("WTF?! No space: nr_inodes: %u; first_ino: %u\n",
                 sbi->s_inodes_count, sbi->s_first_ino);
         goto fail;
     }
