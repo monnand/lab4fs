@@ -69,7 +69,7 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
 	unsigned reclen = LAB4FS_DIR_REC_LEN(namelen);
 	unsigned short rec_len, name_len;
 	struct page *page = NULL;
-	ext2_dirent * de;
+	struct lab4fs_dir_entry *de;
 	unsigned long npages = dir_pages(dir);
 	unsigned long n;
 	char *kaddr;
@@ -113,7 +113,7 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
                 goto got_it;
             if (rec_len >= name_len + reclen)
                 goto got_it;
-            de = (ext2_dirent *) ((char *) de + rec_len);
+            de = (struct lab4fs_dir_entry *) ((char *) de + rec_len);
         }
         unlock_page(page);
         lab4fs_put_page(page);
@@ -382,7 +382,7 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
     struct inode *inode;
     ino_t ino;
 
-	if (dentry->d_name.len > EXT2_NAME_LEN)
+	if (dentry->d_name.len > LAB4FS_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
 
 	ino = lab4fs_inode_by_name(dir, dentry);
@@ -435,7 +435,7 @@ static int lab4fs_create(struct inode *dir,
 		inode->i_fop = &lab4fs_file_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
 		mark_inode_dirty(inode);
-		err = ext2_add_nondir(dentry, inode);
+		err = lab4fs_add_nondir(dentry, inode);
 	}
 	return err;
 
