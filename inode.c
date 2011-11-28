@@ -86,7 +86,6 @@ void print_inode(struct inode *inode)
 }
 #endif
 
-#if 0
 void lab4fs_read_inode(struct inode *inode)
 {
     struct lab4fs_inode_info *ei = LAB4FS_I(inode);
@@ -163,8 +162,8 @@ bad_inode:
     write_unlock(&ei->rwlock);
     return;
 }
-#endif
 
+#if 0
 void lab4fs_read_inode(struct inode *inode)
 {
     struct lab4fs_inode_info *ei = LAB4FS_I(inode);
@@ -237,6 +236,7 @@ bad_inode:
     write_unlock(&ei->rwlock);
     return;
 }
+#endif
 
 static int lab4fs_block_to_path(struct inode *inode,
 			long i_block, int offsets[4], int *boundary)
