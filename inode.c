@@ -37,10 +37,10 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     block = ino / LAB4FS_INODE_SIZE(sb);
     offset = ino % LAB4FS_INODE_SIZE(sb);
     block += LAB4FS_SB(sb)->s_inode_table;
-    LAB4DEBUG("read block: %u:%u\n", block, offset);
 	if (!(bh = sb_bread(sb, block)))
         goto Eio;
     *p = bh;
+    LAB4DEBUG("read block: %u:%u\n", block, offset);
     offset = offset << LAB4FS_SB(sb)->s_log_inode_size;
 	return (struct lab4fs_inode *) (bh->b_data + offset);
 
@@ -120,6 +120,7 @@ void lab4fs_read_inode(struct inode *inode)
     write_unlock(&ei->rwlock);
     return;
 bad_inode:
+    LAB4DEBUG("A bad inode!\n");
     make_bad_inode(inode);
     write_unlock(&ei->rwlock);
     return;
