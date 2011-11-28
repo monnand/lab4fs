@@ -192,6 +192,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     print_inode(root);
     LAB4DEBUG("I will report error here!\n");
     err = -EIO;
+    iput(root);
     goto out_fail;
     if (root == NULL) {
         err = -EIO;
