@@ -55,7 +55,6 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     block = ino / LAB4FS_INODE_SIZE(sb);
     offset = ino % LAB4FS_INODE_SIZE(sb);
     block += LAB4FS_SB(sb)->s_inode_table;
-    goto Eio;
 	if (!(bh = sb_bread(sb, block)))
         goto Eio;
     *p = bh;
