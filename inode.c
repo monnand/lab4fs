@@ -73,13 +73,20 @@ Eio:
 }
 
 #ifdef CONFIG_LAB4FS_DEBUG
-void print_inode(struct lab4fs_inode_info *ei, struct lab4fs_inode *raw_inode)
+void print_raw_inode(struct lab4fs_inode *raw_inode)
 {
     LAB4DEBUG("mode: %u\n", le32_to_cpu(raw_inode->i_mode));
     LAB4DEBUG("nlink: %u\n", le32_to_cpu(raw_inode->i_links_count));
 }
+
+void print_inode(struct inode *inode)
+{
+    LAB4DEBUG("mode: %u\n", inode->i_mode);
+    LAB4DEBUG("nlink: %u\n", inode->i_nlink);
+}
 #else
-#define print_inode(ei, ri)
+#define print_raw_inode(ri)
+#define print_inode(inode)
 #endif
 
 void lab4fs_read_inode(struct inode *inode)
@@ -105,7 +112,7 @@ void lab4fs_read_inode(struct inode *inode)
 	inode->i_atime.tv_nsec = inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec = 0;
 	ei->i_dtime = le32_to_cpu(raw_inode->i_dtime);
 
-    print_inode(ei, raw_inode);
+    print_raw_inode(raw_inode);
 
 	if (inode->i_nlink == 0 && (inode->i_mode == 0 || ei->i_dtime)) {
 		/* this inode is deleted */
