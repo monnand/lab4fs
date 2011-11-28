@@ -41,8 +41,9 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
         goto Eio;
     *p = bh;
     offset = offset << (LAB4FS_SB(sb)->s_log_inode_size);
-    LAB4DEBUG("read block: %u:%u, blocksize: %u\n",
-            block, offset, sb->s_blocksize);
+    LAB4DEBUG("read block: %u:%u, blocksize: %u; blockbits: %u\n",
+            block, offset, sb->s_blocksize,
+            sb->s_bdev->bd_inode->i_blkbits);
 	return (struct lab4fs_inode *) (bh->b_data + offset);
 
 Einval:
