@@ -192,9 +192,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         err = -EIO;
         goto failed_mount;
     }
-    LAB4DEBUG("I will report error here!\n");
-    err = -EIO;
-    goto out_fail;
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
         iput(root);
@@ -204,6 +201,9 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 
     return 0;
 
+    LAB4DEBUG("I will report error here!\n");
+    err = -EIO;
+    goto out_fail;
 failed_mount:
 out_fail:
 	kfree(sbi);
