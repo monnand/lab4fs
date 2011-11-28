@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
+#include <byteswap.h>
 
 /*      
  * Ext2 directory file types.  Only the low 3 bits are used.  The
@@ -85,13 +86,12 @@
 #define INODESIZE   128
 #define NR_BLKS_PER_FILE    1.0
 
+/* FIXME it seems that this cannot work with old glibc */
 #ifndef htole32
-#include <byteswap.h>
 #define htole32(x) (bswap_32(htonl(x)))
 #endif
 
 #ifndef htole16
-#include <byteswap.h>
 #define htole16(x) (bswap_16(htonl(x)))
 #endif
 
