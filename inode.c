@@ -393,11 +393,12 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 	inode->i_generation = sbi->s_next_generation++;
     write_unlock(&sbi->rwlock);
 
+    LAB4DEBUG("free inodes: %u\n", sbi->s_free_inodes_count);
+	inode->i_ino = ino;
+	inode->i_mode = mode;
     inode->i_uid = current->fsuid;
     inode->i_gid = current->fsgid;
-	inode->i_mode = mode;
 
-	inode->i_ino = ino;
 	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
 	inode->i_blocks = 0;
 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
