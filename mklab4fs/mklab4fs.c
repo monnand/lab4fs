@@ -86,13 +86,12 @@
 #define INODESIZE   128
 #define NR_BLKS_PER_FILE    1.0
 
-/* FIXME it seems that this cannot work with old glibc */
 #ifndef htole32
 #define htole32(x) (bswap_32(htonl(x)))
 #endif
 
 #ifndef htole16
-#define htole16(x) (bswap_16(htonl(x)))
+#define htole16(x) (bswap_16(htons(x)))
 #endif
 
 #define LAB4FS_ROOT_INO     1
