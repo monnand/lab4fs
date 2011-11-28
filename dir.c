@@ -159,7 +159,7 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
             if ((char *)de == dir_end) {
                 name_len = 0;
                 rec_len = chunk_size;
-                de->rec_len = cpu_to_le16(chunch_size);
+                de->rec_len = cpu_to_le16(chunk_size);
                 de->inode = 0;
                 goto got_it;
             }
