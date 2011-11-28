@@ -404,9 +404,6 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 	ei->i_dir_acl = 0;
 	inode->i_generation = sbi->s_next_generation++;
 
-    LAB4DEBUG("OK, I have to stop here\n");
-    err = -ENOSPC;
-	return ERR_PTR(err);
 	insert_inode_hash(inode);
     mark_inode_dirty(inode);
 
