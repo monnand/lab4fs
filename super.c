@@ -155,8 +155,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         }
     }
 
-    LAB4DEBUG("I will report error here!\n");
-    err = -EIO;
     goto out_fail;
     sb->s_maxbytes = lab4fs_max_size(es);
     sbi->s_sbh = bh;
@@ -194,6 +192,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         err = -EIO;
         goto failed_mount;
     }
+    LAB4DEBUG("I will report error here!\n");
+    err = -EIO;
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
         iput(root);
