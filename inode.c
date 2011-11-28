@@ -25,16 +25,17 @@ static inline int verify_chain(Indirect *from, Indirect *to)
 #ifdef CONFIG_LAB4FS_DEBUG
 void print_buffer_head(struct buffer_head *bh, int start, int len)
 {
-    __u32 *data;
+    __u8 *data;
     int i;
 
-    len = len >> 2;
     data = (__u32 *)(bh->b_data + start);
     LAB4DEBUG("Printing buffer head: \n" KERN_INFO);
     for (i = 0; i < len; i++) {
-        if (i % 8 == 0)
+        if (i % 32 == 0)
             printk("\n" KERN_INFO);
-        printk(" %x", data[i]);
+        if (i % 4 == 0)
+            printk(" ");
+        printk("%2x", data[i]);
     }
     printk("\n");
 }
