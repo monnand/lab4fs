@@ -22,6 +22,25 @@ static inline int verify_chain(Indirect *from, Indirect *to)
 	return (from > to);
 }
 
+#ifdef CONFIG_LAB4FS_DEBUG
+void print_buffer_head(struct buffer_head *bh, int start, int len)
+{
+    __u32 *data;
+    int i;
+
+    len = len >> 2;
+    data = (__u32 *)(bh->b_data + start);
+    LAB4DEBUG("Printing buffer head: \n");
+    for (i = 0; i < len; i++) {
+        LAB4VERBOSE(" %x", data[i]);
+        if (i % 8)
+            LAB4VERBOSE("\n");
+    }
+}
+#else
+#define print_buffer_head(bh, start, len)
+#endif
+
 static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
         ino_t ino, struct buffer_head **p)
 {

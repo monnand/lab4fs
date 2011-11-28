@@ -68,6 +68,10 @@
 	printk(KERN_WARNING "[lab4fs] " string, ##args);	\
 } while (0)
 
+#define LAB4VERBOSE(string, args...)	do {	\
+	printk(KERN_INFO string, ##args);	\
+} while (0)
+
 #ifdef CONFIG_LAB4FS_DEBUG
 #define LAB4DEBUG(string, args...)	do {	\
 	printk(KERN_DEBUG "[lab4fs][%s:%d] "string, __FILE__, __LINE__, \
