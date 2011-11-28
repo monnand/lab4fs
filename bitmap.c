@@ -22,7 +22,6 @@ int bitmap_setup(struct lab4fs_bitmap *bitmap, struct super_block *sb,
     if (bitmap->bhs == NULL)
         return -ENOMEM;
 
-
     for(i = 0; i < bitmap->nr_bhs; i++) {
         struct buffer_head *bh;
 		bh = sb_bread(sb, current_block);
@@ -135,8 +134,11 @@ __u32 bitmap_find_next_zero_bit(struct lab4fs_bitmap *bitmap, int off, int set)
     offset = n % bitmap->nr_bits_per_block;
     ret = -1;
     i = -1;
+
+    LAB4DEBUG("Trying to find a zero bit at bh %u, from %u\n", n, offset);
     data = bitmap->bhs[n]->b_data;
     i = find_next_zero_bit(data, bitmap->nr_bits_per_block, offset);
+    LAB4DEBUG("%uth bit is zero!\n", i);
     ret = n << bitmap->log_nr_bits_per_block;
     if (i < 0 || i < off || i >= bitmap->nr_bits_per_block) {
         offset = 0;
