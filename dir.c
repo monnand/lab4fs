@@ -48,7 +48,7 @@ fail:
     return ERR_PTR(-EIO);
 }
 
-static inline lab4fs_match(int len, const char *const name,
+static inline int lab4fs_match(int len, const char *const name,
         struct lab4fs_dir_entry *de)
 {
     if (len != de->name_len)
@@ -82,7 +82,7 @@ static inline unsigned lab4fs_chunk_size(struct inode *inode)
 	return inode->i_sb->s_blocksize;
 }
 
-static inline lab4fs_add_nodir(struct dentry *dentry, struct inode *inode)
+static inline int lab4fs_add_nodir(struct dentry *dentry, struct inode *inode)
 {
     int err = lab4fs_add_link(dentry, inode);
     if (!err) {
@@ -435,7 +435,7 @@ static int lab4fs_create(struct inode *dir,
 		inode->i_fop = &lab4fs_file_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
 		mark_inode_dirty(inode);
-		err = lab4fs_add_nondir(dentry, inode);
+		err = lab4fs_add_nodir(dentry, inode);
 	}
 	return err;
 
