@@ -443,13 +443,6 @@ lab4fs_prepare_write(struct file *file, struct page *page,
 	return block_prepare_write(page,from,to,lab4fs_get_block);
 }
 
-static int
-lab4fs_nobh_prepare_write(struct file *file, struct page *page,
-			unsigned from, unsigned to)
-{
-	return nobh_prepare_write(page,from,to,lab4fs_get_block);
-}
-
 static sector_t lab4fs_bmap(struct address_space *mapping, sector_t block)
 {
 	return generic_block_bmap(mapping,block,lab4fs_get_block);
