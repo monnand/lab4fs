@@ -199,6 +199,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_next_generation = 0;
     sbi->s_free_inodes_count = le32_to_cpu(es->s_free_inodes_count);
     sbi->s_free_data_blocks_count = le32_to_cpu(es->s_free_data_blocks_count);
+    sbi->s_inodes_count = le32_to_cpu(es->s_inodes_count);
+    sbi->s_blocks_count = le32_to_cpu(es->s_blocks_count);
 
     sbi->s_inode_bitmap.nr_valid_bits = le32_to_cpu(es->s_inodes_count);
     sbi->s_data_bitmap.nr_valid_bits = le32_to_cpu(es->s_blocks_count) 
