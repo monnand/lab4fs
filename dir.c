@@ -1,6 +1,32 @@
 #include "lab4fs.h"
 #include <linux/time.h>
 
+static inline void lab4fs_put_page(struct page *page)
+{
+	kunmap(page);
+	page_cache_release(page);
+}
+
+static inline unsigned long dir_pages(struct inode *inode)
+{
+	return (inode->i_size+PAGE_CACHE_SIZE-1)>>PAGE_CACHE_SHIFT;
+}
+
+static unsigned
+lab4fs_last_byte(struct inode *inode, unsigned long page_nr)
+{
+	unsigned last_byte = inode->i_size;
+
+	last_byte -= page_nr << PAGE_CACHE_SHIFT;
+	if (last_byte > PAGE_CACHE_SIZE)
+		last_byte = PAGE_CACHE_SIZE;
+	return last_byte;
+}
+
+/* TODO */
+#define lab4fs_check_page(page) 
+
+
 static inline void lab4fs_inc_count(struct inode *inode)
 {
     inode->i_nlink++;
@@ -151,32 +177,6 @@ out_unlock:
     unlock_page(page);
     goto out_put;
 }
-
-static inline void lab4fs_put_page(struct page *page)
-{
-	kunmap(page);
-	page_cache_release(page);
-}
-
-static inline unsigned long dir_pages(struct inode *inode)
-{
-	return (inode->i_size+PAGE_CACHE_SIZE-1)>>PAGE_CACHE_SHIFT;
-}
-
-static unsigned
-lab4fs_last_byte(struct inode *inode, unsigned long page_nr)
-{
-	unsigned last_byte = inode->i_size;
-
-	last_byte -= page_nr << PAGE_CACHE_SHIFT;
-	if (last_byte > PAGE_CACHE_SIZE)
-		last_byte = PAGE_CACHE_SIZE;
-	return last_byte;
-}
-
-/* TODO */
-#define lab4fs_check_page(page) 
-
 static struct page *lab4fs_get_page(struct inode *dir, unsigned long n)
 {
     struct address_space *mapping = dir->i_mapping;
