@@ -154,6 +154,10 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
             goto failed_mount;
         }
     }
+
+    LAB4DEBUG("I will report error here!\n");
+    err = -EIO;
+    goto out_fail;
     sb->s_maxbytes = lab4fs_max_size(es);
     sbi->s_sbh = bh;
     sbi->s_log_block_size = log2(sb->s_blocksize);

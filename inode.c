@@ -68,7 +68,7 @@ Einval:
     return ERR_PTR(-EINVAL);
 Eio:
     LAB4ERROR("lab4fs_get_inode: "
-		   "unable to read inode block - inode=%lu, block=%u",
+		   "unable to read inode block - inode=%lu, block=%u\n",
 		   (unsigned long) ino, block);
 	return ERR_PTR(-EIO);
 }
