@@ -116,7 +116,12 @@ static int lab4fs_commit_chunk(struct page *page, unsigned from, unsigned to)
     struct inode *dir = page->mapping->host;
     int err = 0;
     dir->i_version++;
-    page->mapping->a_ops->commit_write(NULL, page, from, to);
+    err = page->mapping->a_ops->commit_write(NULL, page, from, to);
+    if (IS_ERR(err)) {
+        unlock_page(page);
+        LAB4DEBUG("error on commit chunk\n");
+        return err;
+    }
     if (IS_DIRSYNC(dir))
         err = write_one_page(page, 1);
     else
@@ -140,6 +145,7 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
 	unsigned from, to;
 	int err;
 
+    LAB4DEBUG("Find a free slot for the new inode\n");
     for (n = 0; n <= npages; n++) {
         char *dir_end;
 
@@ -161,6 +167,7 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
                 rec_len = chunk_size;
                 de->rec_len = cpu_to_le16(chunk_size);
                 de->inode = 0;
+                LAB4DEBUG("we can append thid inode to the end of this page\n");
                 goto got_it;
             }
             if (de->rec_len == 0) {
