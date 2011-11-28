@@ -86,6 +86,7 @@ void print_inode(struct inode *inode)
 }
 #endif
 
+#if 0
 void lab4fs_read_inode(struct inode *inode)
 {
     struct lab4fs_inode_info *ei = LAB4FS_I(inode);
@@ -114,11 +115,10 @@ void lab4fs_read_inode(struct inode *inode)
 	if (inode->i_nlink == 0 && (inode->i_mode == 0 || ei->i_dtime)) {
 		/* this inode is deleted */
 		brelse (bh);
-        LAB4DEBUG("nlinke: %u, mode: %u, dtime %u\n",
-                inode->i_nlink, inode->i_mode, ei->i_dtime);
 		goto bad_inode;
 	}
-	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
+    /* This is the optimal IO size (for stat), not the fs block size */
+	inode->i_blksize = PAGE_SIZE;
     inode->i_blkbits = LAB4FS_SB(inode->i_sb)->s_log_block_size;
 	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
 	ei->i_file_acl = le32_to_cpu(raw_inode->i_file_acl);
@@ -148,6 +148,80 @@ void lab4fs_read_inode(struct inode *inode)
         /*
         inode->i_fop = &simple_dir_operations;
         inode->i_op = &lab4fs_dir_inode_operations;
+        */
+        inode->i_fop = &lab4fs_dir_operations;
+        inode->i_mapping->a_ops = &lab4fs_aops;
+    } else {
+        LAB4DEBUG("Not implemented\n");
+    }
+	brelse (bh);
+    write_unlock(&ei->rwlock);
+    return;
+bad_inode:
+    LAB4DEBUG("A bad inode!\n");
+    make_bad_inode(inode);
+    write_unlock(&ei->rwlock);
+    return;
+}
+#endif
+
+void lab4fs_read_inode(struct inode *inode)
+{
+    struct lab4fs_inode_info *ei = LAB4FS_I(inode);
+    ino_t ino = inode->i_ino;
+    int n;
+	struct buffer_head * bh;
+    struct lab4fs_inode *raw_inode = lab4fs_get_inode(inode->i_sb, ino, &bh);
+
+	if (bh == NULL)
+ 		goto bad_inode;
+
+    write_lock(&ei->rwlock);
+	inode->i_mode = le16_to_cpu(raw_inode->i_mode);
+	inode->i_uid = (uid_t)le32_to_cpu(raw_inode->i_uid);
+	inode->i_gid = (gid_t)le32_to_cpu(raw_inode->i_gid);
+	inode->i_nlink = le16_to_cpu(raw_inode->i_links_count);
+    inode->i_size = le32_to_cpu(raw_inode->i_size);
+	inode->i_atime.tv_sec = le32_to_cpu(raw_inode->i_atime);
+	inode->i_ctime.tv_sec = le32_to_cpu(raw_inode->i_ctime);
+	inode->i_mtime.tv_sec = le32_to_cpu(raw_inode->i_mtime);
+	inode->i_atime.tv_nsec = inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec = 0;
+	ei->i_dtime = le32_to_cpu(raw_inode->i_dtime);
+
+    print_inode(ei, raw_inode);
+
+	if (inode->i_nlink == 0 && (inode->i_mode == 0 || ei->i_dtime)) {
+		/* this inode is deleted */
+		brelse (bh);
+		goto bad_inode;
+	}
+	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
+    inode->i_blkbits = LAB4FS_SB(inode->i_sb)->s_log_block_size;
+	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
+	ei->i_file_acl = le32_to_cpu(raw_inode->i_file_acl);
+	ei->i_dir_acl = 0;
+
+    if (!S_ISREG(inode->i_mode))
+        ei->i_dir_acl = le32_to_cpu(raw_inode->i_dir_acl);
+
+	/*
+	 * NOTE! The in-memory inode i_data array is in little-endian order
+	 * even on big-endian machines: we do NOT byteswap the block numbers!
+	 */
+	for (n = 0; n < LAB4FS_N_BLOCKS; n++)
+		ei->i_block[n] = raw_inode->i_block[n];
+
+    /*
+     * TODO set operations
+     */
+
+    if (S_ISREG(inode->i_mode)) {
+    } else if (S_ISDIR(inode->i_mode)) {
+
+        LAB4DEBUG("I got a dir inode, ino: %lu\n", ino);
+        inode->i_op = &simple_dir_inode_operations;
+        /*
+        inode->i_fop = &simple_dir_operations;
         */
         inode->i_fop = &lab4fs_dir_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;

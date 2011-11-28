@@ -65,11 +65,15 @@ struct super_operations lab4fs_super_ops = {
     .alloc_inode    = lab4fs_alloc_inode,
     .destroy_inode  = lab4fs_destroy_inode,
     .read_inode     = lab4fs_read_inode,
+    /*
     .write_inode    = lab4fs_write_inode,
+    */
     .statfs         = simple_statfs,
     .drop_inode     = generic_delete_inode,
     .put_super      = lab4fs_put_super,
+    /*
     .write_super    = lab4fs_write_super,
+    */
 };
 
 static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
@@ -190,8 +194,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     LAB4DEBUG("The root struct is @ 0x%x\n", (__u32)root);
     print_inode(root);
     LAB4DEBUG("I will report error here!\n");
+    LAB4DEBUG("OK the addr is 0x%x\n", (__u32)(inode->i_data.assoc_mapping));
     err = -EIO;
-    iput(root);
     goto out_fail;
     if (root == NULL) {
         err = -EIO;
