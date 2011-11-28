@@ -55,6 +55,11 @@ void lab4fs_write_super (struct super_block * sb)
 static 
 int lab4fs_statfs(struct super_block *sb, struct kstatfs *buf)
 {
+    struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
+    buf->f_type = sb->s_magic;
+	buf->f_bsize = 1024;
+	buf->f_namelen = 255;
+    buf->f_bfree = sbi->s_free_data_blocks_count;
     return 0;
 }
 
@@ -63,7 +68,7 @@ struct super_operations lab4fs_super_ops = {
     .destroy_inode  = lab4fs_destroy_inode,
     .read_inode     = lab4fs_read_inode,
     .write_inode    = lab4fs_write_inode,
-    .statfs         = simple_statfs,
+    .statfs         = lab4fs_statfs,
     .drop_inode     = generic_delete_inode,
     .put_super      = lab4fs_put_super,
     .write_super    = lab4fs_write_super,
