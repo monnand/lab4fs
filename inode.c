@@ -81,7 +81,7 @@ void print_raw_inode(struct lab4fs_inode *raw_inode)
 
 void print_inode(struct inode *inode)
 {
-    LAB4DEBUG("mode: %u\n", inode->i_mode);
+    LAB4DEBUG("mode: %X\n", inode->i_mode);
     LAB4DEBUG("nlink: %u\n", inode->i_nlink);
 }
 #endif
@@ -308,6 +308,8 @@ static int lab4fs_update_inode(struct inode *inode, int do_sync)
     if (IS_ERR(raw_inode))
         return -EIO;
 
+    LAB4DEBUG("update inode: %u\n", inode->i_ino);
+    print_inode(inode);
     raw_inode->i_mode = cpu_to_le16(inode->i_mode);
     raw_inode->i_uid = cpu_to_le32(uid);
     raw_inode->i_gid = cpu_to_le32(gid);
@@ -381,9 +383,8 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 
     if (ino >= sbi->s_inodes_count || ino < sbi->s_first_ino) {
         err = -ENOSPC;
-        LAB4DEBUG("new inode number: %u\n", ino);
-        LAB4DEBUG("WTF?! No space: nr_inodes: %u; first_ino: %u\n",
-                sbi->s_inodes_count, sbi->s_first_ino);
+        LAB4DEBUG("WTF?! No space: ino: %u, nr_inodes: %u; first_ino: %u\n",
+                ino, sbi->s_inodes_count, sbi->s_first_ino);
         goto fail;
     }
 
@@ -393,7 +394,6 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 	inode->i_generation = sbi->s_next_generation++;
     write_unlock(&sbi->rwlock);
 
-    LAB4DEBUG("free inodes: %u\n", sbi->s_free_inodes_count);
 	inode->i_ino = ino;
 	inode->i_mode = mode;
     inode->i_uid = current->fsuid;
@@ -409,8 +409,6 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 
 	insert_inode_hash(inode);
     mark_inode_dirty(inode);
-
-    LAB4DEBUG("new inode number: %u\n", inode->i_ino);
     return inode;
 
 fail:
