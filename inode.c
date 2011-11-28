@@ -29,13 +29,14 @@ void print_buffer_head(struct buffer_head *bh, int start, int len)
     int i;
 
     data = (__u32 *)(bh->b_data + start);
-    LAB4DEBUG("Printing buffer head: \n" KERN_INFO);
+    LAB4DEBUG("Printing buffer head@%dB, size=%d: \n" KERN_INFO,
+            start, len);
     for (i = 0; i < len; i++) {
         if (i % 32 == 0)
             printk("\n" KERN_INFO);
         if (i % 4 == 0)
             printk(" ");
-        printk("%2x", data[i]);
+        printk("%02x", data[i]);
     }
     printk("\n");
 }
@@ -65,7 +66,8 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     LAB4DEBUG("read block: %u:%u, blocksize: %u; blockbits: %u\n",
             block, offset, sb->s_blocksize,
             sb->s_bdev->bd_inode->i_blkbits);
-    print_buffer_head(bh, offset, 12);
+    print_buffer_head(bh, 0, 128);
+    print_buffer_head(bh, 128, 128);
 	return (struct lab4fs_inode *) (bh->b_data + offset);
 
 Einval:
