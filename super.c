@@ -65,7 +65,6 @@ struct super_operations lab4fs_super_ops = {
     .alloc_inode    = lab4fs_alloc_inode,
     .destroy_inode  = lab4fs_destroy_inode,
     .read_inode     = lab4fs_read_inode,
-    .put_inode      = lab4fs_put_inode,
     .write_inode    = lab4fs_write_inode,
     .statfs         = simple_statfs,
     .drop_inode     = generic_delete_inode,

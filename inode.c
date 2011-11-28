@@ -352,15 +352,6 @@ int lab4fs_sync_inode(struct inode *inode)
 	return sync_inode(inode, &wbc);
 }
 
-/*
- * Called at each iput().
- */
-void lab4fs_put_inode(struct inode *inode)
-{
-    return;
-}
-
-
 /* Create a new inode under dir */
 struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 {
