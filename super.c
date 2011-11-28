@@ -96,7 +96,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     struct lab4fs_sb_info *sbi;
     struct inode *root;
     int hblock;
-    int err;
+    int err = 0;
 
     sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
     if (!sbi)
@@ -174,6 +174,9 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_log_inode_size = log2(sbi->s_inode_size);
     sbi->s_inode_table = le32_to_cpu(es->s_inode_table);
     sbi->s_data_blocks = le32_to_cpu(es->s_data_blocks);
+    sbi->s_next_generation = 0;
+    sbi->s_free_inodes_count = le32_to_cpu(es->s_free_inodes_count);
+    sbi->s_free_data_blocks_count = le32_to_cpu(es->s_free_data_blocks_count);
 
     sbi->s_inode_bitmap.nr_valid_bits = le32_to_cpu(es->s_inodes_count);
     sbi->s_data_bitmap.nr_valid_bits = le32_to_cpu(es->s_blocks_count) 
@@ -188,6 +191,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     if (err)
         goto out_fail;
 
+    rwlock_init(&sbi->rwlock);
     print_super(es);
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
     LAB4DEBUG("Now loading root dir\n");
