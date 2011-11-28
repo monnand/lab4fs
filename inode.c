@@ -32,11 +32,11 @@ void print_buffer_head(struct buffer_head *bh, int start, int len)
     data = (__u32 *)(bh->b_data + start);
     LAB4DEBUG("Printing buffer head: \n" KERN_INFO);
     for (i = 0; i < len; i++) {
-        printk(" %x", data[i]);
         if (i % 8 == 0)
             printk("\n" KERN_INFO);
+        printk(" %x", data[i]);
     }
-    printk("end\n");
+    printk("\n");
 }
 #else
 #define print_buffer_head(bh, start, len)
