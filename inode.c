@@ -185,9 +185,6 @@ static int lab4fs_block_to_path(struct inode *inode,
     int final = 0;
     int n = 0;
 
-    LAB4DEBUG("Trying to find offsets for block %ld in inode %lu\n",
-            i_block, inode->i_ino);
-    LAB4DEBUG("There are %d pointers in one block\n", ptrs);
     if (i_block < 0) {
         LAB4ERROR("block %d < 0\n", (int)i_block);
         return 0;

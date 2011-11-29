@@ -274,6 +274,13 @@ static int init_inodecache(void)
 static int __init init_lab4fs_fs(void)
 {
     int err;
+    char buf[4];
+    memset(buf, 0, sizeof(buf));
+    err = find_next_zero_bit(&buf, 4, 0);
+    LAB4DEBUG("First 0 bit is %d\n", err);
+    buf[0] = 0x80;
+    err = find_next_zero_bit(&buf, 4, 0);
+    LAB4DEBUG("First 0 bit is %d\n", err);
     err = init_inodecache();
     if (err)
         return err;
