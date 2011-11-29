@@ -185,7 +185,7 @@ static int lab4fs_block_to_path(struct inode *inode,
     int final = 0;
     int n = 0;
 
-    LAB4DEBUG("Trying to find offsets for block %d in inode %lu\n",
+    LAB4DEBUG("Trying to find offsets for block %ld in inode %lu\n",
             i_block, inode->i_ino);
     LAB4DEBUG("There are %d pointers in one block\n", ptrs);
     if (i_block < 0) {
@@ -383,7 +383,7 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
 #ifdef CONFIG_LAB4FS_DEBUG
     if (inode->i_ino == LAB4FS_ROOT_INO) {
         LAB4DEBUG("We need to get block %lu for ROOT, create: %d\n",
-                iblock, inode->i_ino, create);
+                iblock, create);
         print_block_path(inode, iblock, offsets, depth);
     } else if (create) {
         LAB4DEBUG("We need to get block %lu for inode %lu, create if necessary\n",
@@ -399,7 +399,7 @@ reread:
 got_it:
 #ifdef CONFIG_LAB4FS_DEBUG
         if (create) {
-            LAB4DEBUG("We get the block %lu for inode %lu, it's %lu on disk.\n",
+            LAB4DEBUG("We get the block %lu for inode %lu, it's %u on disk.\n",
                     iblock, inode->i_ino,
                     le32_to_cpu(chain[depth-1].key));
         }
