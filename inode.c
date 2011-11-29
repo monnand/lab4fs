@@ -103,6 +103,16 @@ void print_inode(struct inode *inode)
     } 
     printk("\n");
 }
+#else
+
+#ifndef print_raw_inode
+#define print_raw_inode(i)
+#endif
+
+#ifndef print_inode
+#define print_inode(i)
+#endif
+
 #endif
 
 void lab4fs_read_inode(struct inode *inode)
