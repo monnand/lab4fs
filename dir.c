@@ -389,7 +389,7 @@ static inline int is_my_test(struct dentry *dentry)
 }
 
 #define printmemaddr(s, mem)    do {    \
-    LAB4DEBUG(#s ": %x\n", (s)->mem);   \
+    LAB4DEBUG(#s ": %x\n", (unsigned)(s)->mem);   \
 } while(0)
 
 
