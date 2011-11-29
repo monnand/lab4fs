@@ -187,7 +187,9 @@ got_it:
     from = (char *)de - (char *)page_address(page);
     to = from + rec_len;
     if (to > PAGE_CACHE_SIZE) {
-        LAB4DEBUG("look! I want to write on %dth page, but will fail!\n", n);
+        char filename[255];
+        memcpy(filename, name, name_len);
+        LAB4DEBUG("look! I want to write on %dth page on file %s, but will fail!\n", n, filename);
         LAB4DEBUG("from: %u; to %u\n", (unsigned)from, (unsigned)to);
         LAB4DEBUG("got a free slot: rec_len = %u\n", (unsigned)rec_len);
         goto out_unlock;
