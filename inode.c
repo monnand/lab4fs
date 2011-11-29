@@ -187,9 +187,11 @@ static int lab4fs_block_to_path(struct inode *inode,
         LAB4ERROR("block %d < 0\n", (int)i_block);
         return 0;
     } else if (i_block < direct_blocks) {
+        LAB4DEBUG("block %ld is a direct block\n", i_block);
         offsets[n++] = i_block;
         final = direct_blocks;
     } else if ( (i_block -= direct_blocks) < indirect_blocks) {
+        LAB4DEBUG("block %ld is an indirect block\n", i_block + direct_blocks);
 		offsets[n++] = LAB4FS_IND_BLOCK;
         offsets[n++] = i_block;
         final = ptrs;
