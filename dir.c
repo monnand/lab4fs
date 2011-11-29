@@ -437,6 +437,14 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
         /*
         LAB4DEBUG("Well... I got its inode...\n");
         */
+        if (is_my_test(dentry)) {
+#ifdef CONFIG_LAB4FS_DEBUG
+            memcpy(filename, dentry->d_name.name, dentry->d_name.len);
+            filename[dentry->d_name.len] = 0;
+#endif
+            LAB4DEBUG("file: %s, ino: %lu\n", filename, ino);
+            print_inode(inode);
+        }
 		if (!inode)
 			return ERR_PTR(-EACCES);
 	}
