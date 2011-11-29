@@ -169,7 +169,7 @@ void lab4fs_read_inode(struct inode *inode)
         inode->i_fop = &lab4fs_dir_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
     } else {
-        LAB4DEBUG("Not implemented\n");
+        LAB4ERROR("Not implemented\n");
     }
 	brelse (bh);
     write_unlock(&ei->rwlock);

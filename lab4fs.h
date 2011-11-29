@@ -79,6 +79,8 @@
 	printk(KERN_DEBUG "[lab4fs][%s:%d] "string, __FILE__, __LINE__, \
     ##args);	\
 } while(0)
+#else
+#define LAB4DEBUG(string, args...)
 #endif
 
 #define LAB4FS_FIRST_INO(s)   (LAB4FS_SB(s)->s_first_ino)
