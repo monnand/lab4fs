@@ -75,7 +75,7 @@ Eio:
 #ifdef CONFIG_LAB4FS_DEBUG
 void print_raw_inode(struct lab4fs_inode *raw_inode)
 {
-    int i;
+    int i = 0;
     LAB4DEBUG("mode: %X\n", le32_to_cpu(raw_inode->i_mode));
     LAB4DEBUG("nlink: %u\n", le32_to_cpu(raw_inode->i_links_count));
     LAB4DEBUG("data blocks: ");
@@ -88,7 +88,7 @@ void print_raw_inode(struct lab4fs_inode *raw_inode)
 void print_inode(struct inode *inode)
 {
     struct lab4fs_inode_info *ei = LAB4FS_I(inode);
-    int i;
+    int i = 0;
     LAB4DEBUG("mode: %X\n", inode->i_mode);
     LAB4DEBUG("nlink: %u\n", inode->i_nlink);
     LAB4DEBUG("data blocks: ");
