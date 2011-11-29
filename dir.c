@@ -284,7 +284,9 @@ lab4fs_readdir (struct file * filp, void * dirent, filldir_t filldir)
 #ifdef CONFIG_LAB4FS_DEBUG
                 memcpy(filename, de->name, de->name_len);
                 filename[de->name_len] = 0;
+#ifdef CONFIG_LAB4FS_READDIR_DEBUG
                 LAB4DEBUG("I got a file %s\n", filename);
+#endif
 #endif
                 over = filldir(dirent, de->name, de->name_len,
 						(n<<PAGE_CACHE_SHIFT) | offset,
