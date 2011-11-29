@@ -141,6 +141,7 @@ void lab4fs_read_inode(struct inode *inode)
         LAB4DEBUG("I got a file inode, ino: %lu\n", ino);
 		inode->i_op = &simple_dir_inode_operations;
 		inode->i_fop = &lab4fs_file_operations;
+        inode->i_mapping->a_ops = &lab4fs_aops;
     } else if (S_ISDIR(inode->i_mode)) {
         LAB4DEBUG("I got a dir inode, ino: %lu\n", ino);
         inode->i_op = &lab4fs_dir_inode_operations;
