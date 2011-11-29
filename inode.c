@@ -310,7 +310,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         mark_inode_dirty(inode);
     else
         mark_buffer_dirty(p->bh);
-    ei->i_blocks++;
+    inode->i_blocks++;
     write_unlock(&LAB4FS_I(inode)->rwlock);
 
     write_lock(&sbi->rwlock);
@@ -340,7 +340,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         p->key = cpu_to_le32(block);
         *(p->p) = p->key;
         mark_buffer_dirty(p->bh);
-        ei->i_blocks++;
+        inode->i_blocks++;
 		write_unlock(&LAB4FS_I(inode)->rwlock);
 
         write_lock(&sbi->rwlock);
