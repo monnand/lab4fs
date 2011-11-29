@@ -395,7 +395,7 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
     memcpy(filename, dentry->d_name.name, dentry->d_name.len);
     filename[dentry->d_name.len] = 0;
     LAB4DEBUG("I was asked to look up file: %s\n", filename);
-    return NULL;
+    return ERR_PTR(-EACCES);
 #endif
 	ino = lab4fs_inode_by_name(dir, dentry);
 	inode = NULL;
