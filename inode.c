@@ -91,8 +91,8 @@ void print_inode(struct inode *inode)
     int i = 0;
     LAB4DEBUG("mode: %X\n", inode->i_mode);
     LAB4DEBUG("nlink: %u\n", inode->i_nlink);
-    LAB4DEBUG("size: %u\n", inode->i_size);
-    LAB4DEBUG("blocks: %u\n", inode->i_blocks);
+    LAB4DEBUG("size: %lu\n", (unsigned long)inode->i_size);
+    LAB4DEBUG("blocks: %lu\n", (unsigned long)inode->i_blocks);
     LAB4DEBUG("data blocks: ");
     for (i = 0; i < LAB4FS_N_BLOCKS; i++) {
         printk("%u ", le32_to_cpu(ei->i_block[i]));
