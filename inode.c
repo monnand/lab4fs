@@ -314,6 +314,8 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     if (depth > 1) {
         LAB4DEBUG("Indirect block alloc; we use block %u to store addresses\n",
                 block);
+        LAB4DEBUG("p->p = 0x%X; &i_data[7] = 0x%X\n",
+                (unsigned )((p-1)->p), (unsigned)(&ei->i_data[7]));
         LAB4DEBUG("This block should be added into the end of i_block field:\n");
         print_inode(inode);
         LAB4DEBUG("Does it work?\n");
@@ -329,7 +331,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         }
 
 		read_lock(&LAB4FS_I(inode)->rwlock);
-		add_chain(p + 1, bh, (__le32*)bh->b_data + offsets[n]);
+		add_chain(p, bh, (__le32*)bh->b_data + offsets[n]);
 		read_unlock(&LAB4FS_I(inode)->rwlock);
 
         block = lab4fs_alloc_data_block(inode, 0, err);
