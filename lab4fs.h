@@ -52,7 +52,7 @@
 #define LAB4FS_DEF_RESGID	0
 
 /* 7 direct blocks; 1 indirect block */
-#define lab4fs_max_size(x)	(7<<10 + (1024>>2) << 10)
+#define lab4fs_max_size(x)	(7 * 1024 + (1024/4) * 1024)
 
 #define LAB4FS_NDIR_BLOCKS  7
 #define LAB4FS_IND_BLOCK    8
