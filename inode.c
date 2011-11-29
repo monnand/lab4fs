@@ -362,7 +362,7 @@ out:
 	if (err == -EAGAIN)
 		goto changed;
 
-    LAB4DEBUG("We need to alloc block %lu in file now.\n", iblock);
+    LAB4DEBUG("We need to alloc block %lu for inode %lu.\n", iblock, inode->i_ino);
     partial = lab4fs_alloc_branch(inode, depth, offsets, chain, partial, &err);
     if (err)
         return err;

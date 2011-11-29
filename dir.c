@@ -418,30 +418,24 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
 	if (dentry->d_name.len > LAB4FS_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
 
+/*
 #ifdef CONFIG_LAB4FS_DEBUG
     memcpy(filename, dentry->d_name.name, dentry->d_name.len);
     filename[dentry->d_name.len] = 0;
     LAB4DEBUG("I was asked to look up file: %s\n", filename);
 #endif
+*/
 	ino = lab4fs_inode_by_name(dir, dentry);
 
+    /*
     LAB4DEBUG("Its inode number is %lu\n", ino);
+    */
 	inode = NULL;
 	if (ino) {
 		inode = iget(dir->i_sb, ino);
+        /*
         LAB4DEBUG("Well... I got its inode...\n");
-#ifdef CONFIG_LAB4FS_DEBUG
-        if (is_my_test(dentry)) {
-            print_inode(inode);
-            LAB4DEBUG("Now, lets see its i_op: %x, should be %x\n",
-                    (unsigned)inode->i_op, (unsigned)&simple_dir_inode_operations);
-            LAB4DEBUG("and its i_fop: %x, should be %x\n",
-                    (unsigned)inode->i_fop, (unsigned)&lab4fs_file_operations);
-            LAB4DEBUG("and more about its fops:\n");
-            print_fops(inode->i_fop);
-        }
-#endif
-        LAB4DEBUG("Sorry, cannot proceed\n");
+        */
 		if (!inode)
 			return ERR_PTR(-EACCES);
 	}
