@@ -75,7 +75,7 @@ Eio:
 #ifdef CONFIG_LAB4FS_DEBUG
 void print_raw_inode(struct lab4fs_inode *raw_inode)
 {
-    LAB4DEBUG("mode: %u\n", le32_to_cpu(raw_inode->i_mode));
+    LAB4DEBUG("mode: %X\n", le32_to_cpu(raw_inode->i_mode));
     LAB4DEBUG("nlink: %u\n", le32_to_cpu(raw_inode->i_links_count));
 }
 
@@ -236,7 +236,7 @@ static __u32 lab4fs_alloc_data_block(struct inode *inode, __u32 perfered, long *
 	struct super_block *sb = inode->i_sb;
     struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
     __u32 start = perfered - sbi->s_data_blocks;
-    __u32 found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, start, set);
+    __u32 found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, start, 1);
 
     if (found > sbi->s_data_bitmap.nr_valid_bits) {
         found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, 0, set);
@@ -267,8 +267,9 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     Indirect *end = chain + depth;
     Indirect *p = partial;
     int n = partial - chain;
+    struct super_block = inode->i_sb;
     __u32 block;
-    buffer_head *bh;
+    struct buffer_head *bh;
 
 
     LAB4DEBUG("Allocating the %dth layer block\n", n);
@@ -326,8 +327,6 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
 	int offsets[4];
 	Indirect chain[4];
 	Indirect *partial;
-	unsigned long goal;
-    int left;
     int boundary = 0;
     int depth = lab4fs_block_to_path(inode, iblock, offsets, &boundary);
 
