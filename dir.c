@@ -383,7 +383,8 @@ ino_t lab4fs_inode_by_name(struct inode *dir, struct dentry *dentry)
 static inline int is_my_test(struct dentry *dentry)
 {
     if (dentry->d_name.len == 1)
-        if (!strcmp(dentry->d_name.name, "b"))
+        if (dentry->d_name.name[0] < 'd' &&
+                dentry->d_name.name[0] > 'a')
             return 1;
     return 0;
 }

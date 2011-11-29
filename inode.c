@@ -75,14 +75,26 @@ Eio:
 #ifdef CONFIG_LAB4FS_DEBUG
 void print_raw_inode(struct lab4fs_inode *raw_inode)
 {
+    int i;
     LAB4DEBUG("mode: %X\n", le32_to_cpu(raw_inode->i_mode));
     LAB4DEBUG("nlink: %u\n", le32_to_cpu(raw_inode->i_links_count));
+    LAB4DEBUG("data blocks: ");
+    for (i = 0; i < LAB4FS_N_BLOCKS; i++) {
+        printk("%u ", le32_to_cpu(raw_inode->i_block[i]));
+    } 
+    printk("\n");
 }
 
 void print_inode(struct inode *inode)
 {
+    struct lab4fs_inode_info *ei = LAB4FS_I(inode);
     LAB4DEBUG("mode: %X\n", inode->i_mode);
     LAB4DEBUG("nlink: %u\n", inode->i_nlink);
+    LAB4DEBUG("data blocks: ");
+    for (i = 0; i < LAB4FS_N_BLOCKS; i++) {
+        printk("%u ", le32_to_cpu(ei->i_block[i]));
+    } 
+    printk("\n");
 }
 #endif
 
@@ -267,6 +279,8 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     __u32 block;
     struct buffer_head *bh;
 	struct super_block *sb = inode->i_sb;
+    struct lab4fs_inode_info *ei = LAB4FS_I(inode);
+    struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
 
 
     LAB4DEBUG("Allocating the %dth layer block\n", n);
@@ -280,8 +294,13 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         mark_inode_dirty(inode);
     else
         mark_buffer_dirty(p->bh);
+    ei->i_blocks++;
     write_unlock(&LAB4FS_I(inode)->rwlock);
     LAB4DEBUG("The %dth layer block is %u\n", n, block);
+
+    write_lock(&sbi->rwlock);
+    sbi->s_free_data_blocks_count--;
+    write_unlock(&sbi->rwlock);
     n++;
     p++;
 
@@ -306,7 +325,12 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         p->key = cpu_to_le32(block);
         *(p->p) = p->key;
         mark_buffer_dirty(p->bh);
+        ei->i_blocks++;
 		write_unlock(&LAB4FS_I(inode)->rwlock);
+
+        write_lock(&sbi->rwlock);
+        sbi->s_free_data_blocks_count--;
+        write_unlock(&sbi->rwlock);
 
         LAB4DEBUG("The %dth layer block is %u\n", n, block);
         p++;
