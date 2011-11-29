@@ -310,6 +310,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
 
     write_lock(&sbi->rwlock);
     sbi->s_free_data_blocks_count--;
+	sb->s_dirt = 1;
     write_unlock(&sbi->rwlock);
     n++;
     p++;
@@ -340,6 +341,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
 
         write_lock(&sbi->rwlock);
         sbi->s_free_data_blocks_count--;
+        sb->s_dirt = 1;
         write_unlock(&sbi->rwlock);
 
         LAB4DEBUG("The %dth layer block is %u\n", n, block);
@@ -379,7 +381,11 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
         goto out;
 
 #ifdef CONFIG_LAB4FS_DEBUG
-    if (create) {
+    if (inode->i_ino == LAB4FS_ROOT_INO) {
+        LAB4DEBUG("We need to get block %lu for ROOT, create: %d\n",
+                iblock, inode->i_ino, create);
+        print_block_path(inode, iblock, offsets, depth);
+    } else if (create) {
         LAB4DEBUG("We need to get block %lu for inode %lu, create if necessary\n",
                 iblock, inode->i_ino);
         print_block_path(inode, iblock, offsets, depth);
@@ -565,13 +571,11 @@ fail:
 
 static int lab4fs_writepage(struct page *page, struct writeback_control *wbc)
 {
-    LAB4DEBUG("technically, I will write a page\n");
 	return block_write_full_page(page, lab4fs_get_block, wbc);
 }
 
 static int lab4fs_readpage(struct file *file, struct page *page)
 {
-    LAB4DEBUG("technically, I will read a page\n");
 	return mpage_readpage(page, lab4fs_get_block);
 }
 
