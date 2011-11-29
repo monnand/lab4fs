@@ -55,7 +55,7 @@
 #define lab4fs_max_size(x)	(7 * 1024 + (1024/4) * 1024)
 
 #define LAB4FS_NDIR_BLOCKS  7
-#define LAB4FS_IND_BLOCK    8
+#define LAB4FS_IND_BLOCK    LAB4FS_NDIR_BLOCKS
 #define LAB4FS_N_BLOCKS     8
 #define LAB4FS_LINK_MAX     32000
 
