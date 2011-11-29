@@ -281,6 +281,9 @@ static int __init init_lab4fs_fs(void)
     buf[0] = 0x08;
     err = find_next_zero_bit(&buf, 4, 0);
     LAB4DEBUG("First 0 bit is %d\n", err);
+    buf[0] = 0;
+    set_bit(&buf, 1);
+    LAB4DEBUG("it should be %x %x %x %x\n", buf[0], buf[1], buf[2], buf[3]);
     err = init_inodecache();
     if (err)
         return err;
