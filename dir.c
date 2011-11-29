@@ -185,6 +185,7 @@ got_it:
     to = from + rec_len;
     if (to > PAGE_CACHE_SIZE) {
         LAB4DEBUG("look! I want to write on %dth page, but will fail!\n", n);
+        LAB4DEBUG("from: %u; to %u\n", (unsigned)from, (unsigned)to);
         goto out_unlock;
     }
     err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
