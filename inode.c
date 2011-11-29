@@ -3,6 +3,9 @@
 #include <linux/writeback.h>
 #include <linux/mpage.h>
 
+#ifdef CONFIG_LAB4FS_DEBUG
+#undef CONFIG_LAB4FS_DEBUG
+
 typedef struct {
 	__le32	*p;
 	__le32	key;
