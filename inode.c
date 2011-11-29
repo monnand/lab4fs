@@ -355,6 +355,12 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
     if (depth == 0)
         goto out;
 
+#ifdef CONFIG_LAB4FS_DEBUG
+    if (create) {
+        LAB4DEBUG("We need to iget block %lu for inode %lu, create if necessary\n",
+                iblock, inode->i_ino);
+    }
+#endif
 reread:
 	partial = lab4fs_get_branch(inode, depth, offsets, chain, &err);
 
