@@ -3,10 +3,6 @@
 #include <linux/writeback.h>
 #include <linux/mpage.h>
 
-#ifdef CONFIG_LAB4FS_DEBUG
-#undef CONFIG_LAB4FS_DEBUG
-#endif
-
 typedef struct {
 	__le32	*p;
 	__le32	key;
@@ -197,17 +193,13 @@ static int lab4fs_block_to_path(struct inode *inode,
     int final = 0;
     int n = 0;
 
-    LAB4DEBUG("block %ld to path for inode %lu\n",
-            i_block, (unsigned long)inode->i_ino);
     if (i_block < 0) {
         LAB4ERROR("block %d < 0\n", (int)i_block);
         return 0;
     } else if (i_block < direct_blocks) {
-        LAB4DEBUG("block %ld is a direct block\n", i_block);
         offsets[n++] = i_block;
         final = direct_blocks;
     } else if ( (i_block -= direct_blocks) < indirect_blocks) {
-        LAB4DEBUG("block %ld is an indirect block\n", i_block + direct_blocks);
 		offsets[n++] = LAB4FS_IND_BLOCK;
         offsets[n++] = i_block;
         final = ptrs;
@@ -328,18 +320,6 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     n++;
     p++;
 
-#ifdef CONFIG_LAB4FS_DEBUG
-    if (depth > 1) {
-        LAB4DEBUG("Indirect block alloc; we use block %u to store addresses\n",
-                block);
-        LAB4DEBUG("p->p = 0x%X; &i_data[7] = 0x%X\n",
-                (unsigned )((p-1)->p), (unsigned)(&ei->i_block[7]));
-        LAB4DEBUG("This block should be added into the end of i_block field:\n");
-        print_inode(inode);
-        LAB4DEBUG("Does it work?\n");
-    }
-#endif
-    
     while (p < end) {
         bh = sb_bread(sb, block);
 
@@ -370,15 +350,6 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
 
         p++;
         n++;
-#ifdef CONFIG_LAB4FS_DEBUG
-        if (depth > 1) {
-            LAB4DEBUG("Indirect block; we use block %u to store data\n",
-                    block);
-            LAB4DEBUG("Now let's see the inode again\n");
-            print_inode(inode);
-            LAB4DEBUG("Anything wrong?\n");
-        }
-#endif
     }
 
     *err = 0;
@@ -412,26 +383,12 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
     if (depth == 0)
         goto out;
 
-#ifdef CONFIG_LAB4FS_DEBUG
-    if (depth > 1) {
-        LAB4DEBUG("We have to deal with indirect block.\n");
-        print_block_path(inode, iblock, offsets, depth);
-    }
-#endif
 reread:
 	partial = lab4fs_get_branch(inode, depth, offsets, chain, &err);
 
 	/* Simplest case - block found, no allocation needed */
 	if (!partial) {
 got_it:
-#ifdef CONFIG_LAB4FS_DEBUG
-        if (depth > 1) {
-            LAB4DEBUG("We get the block %lu for inode %lu, it's %u on disk.\n",
-                    iblock, inode->i_ino,
-                    le32_to_cpu(chain[depth-1].key));
-            print_inode(inode);
-        }
-#endif
 		map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
 		if (boundary)
 			set_buffer_boundary(bh_result);
@@ -447,11 +404,6 @@ cleanup:
 			partial--;
 		}
 out:
-#ifdef CONFIG_LAB4FS_DEBUG
-        if (depth > 1) {
-            LAB4DEBUG("Safely returned\n");
-        }
-#endif
         return err;
     }
 
