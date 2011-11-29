@@ -395,14 +395,17 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
     memcpy(filename, dentry->d_name.name, dentry->d_name.len);
     filename[dentry->d_name.len] = 0;
     LAB4DEBUG("I was asked to look up file: %s\n", filename);
-    /*
-    return ERR_PTR(-EACCES);
-    */
 #endif
 	ino = lab4fs_inode_by_name(dir, dentry);
+
+    LAB4DEBUG("Its inode number is %lu\n", ino);
 	inode = NULL;
 	if (ino) {
 		inode = iget(dir->i_sb, ino);
+        LAB4DEBUG("Well... I got its inode...\n");
+        print_inode(inode);
+        LAB4DEBUG("Sorry, cannot proceed\n");
+        return ERR_PTR(-EACCES);
 		if (!inode)
 			return ERR_PTR(-EACCES);
 	}
