@@ -342,6 +342,20 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     return p;
 }
 
+#ifdef CONFIG_LAB4FS_DEBUG
+static void print_block_path(struct inode *inode, sector_t iblock, 
+        int *offsets, int depth)
+{
+    int i;
+    LAB4DEBUG("It is block %lu for inode %lu\n", iblock, inode->i_ino);
+    for (i = 0; i < depth; i++) {
+        LAB4DEBUG("The %dth offset is %d\n", i, offsets[i]);
+    }
+}
+#else
+#define print_block_path(inode, iblock, offsets, depth)
+#endif
+
 static int lab4fs_get_block(struct inode *inode, sector_t iblock,
         struct buffer_head *bh_result, int create)
 {
@@ -359,6 +373,7 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
     if (create) {
         LAB4DEBUG("We need to get block %lu for inode %lu, create if necessary\n",
                 iblock, inode->i_ino);
+        print_block_path(inode, iblock, offsets, depth);
     }
 #endif
 reread:
