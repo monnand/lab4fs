@@ -5,6 +5,7 @@
 
 #ifdef CONFIG_LAB4FS_DEBUG
 #undef CONFIG_LAB4FS_DEBUG
+#endif
 
 typedef struct {
 	__le32	*p;
