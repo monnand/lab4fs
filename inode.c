@@ -528,11 +528,13 @@ fail:
 
 static int lab4fs_writepage(struct page *page, struct writeback_control *wbc)
 {
+    LAB4DEBUG("technically, I will write a page\n");
 	return block_write_full_page(page, lab4fs_get_block, wbc);
 }
 
 static int lab4fs_readpage(struct file *file, struct page *page)
 {
+    LAB4DEBUG("technically, I will read a page\n");
 	return mpage_readpage(page, lab4fs_get_block);
 }
 
