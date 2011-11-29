@@ -135,9 +135,6 @@ __u32 bitmap_find_next_zero_bit(struct lab4fs_bitmap *bitmap, int off, int set)
     ret = 0;
     i = -1;
 
-    LAB4DEBUG("Trying to find a zero bit from %dth bit\n", off);
-    LAB4DEBUG("The starging bit should in block %d:%u\n", n, offset);
-
     data = bitmap->bhs[n]->b_data;
     i = find_next_zero_bit(data, bitmap->nr_bits_per_block, offset);
     ret = n << bitmap->log_nr_bits_per_block;
@@ -169,8 +166,6 @@ got_it:
     } else
         read_unlock(&bitmap->rwlock);
 
-    LAB4DEBUG("got a zero bit at %dth block's %dth bit. So it is bit %d\n",
-            n, i, ret);
     return ret;
 
 failed:

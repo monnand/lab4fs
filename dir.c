@@ -209,7 +209,7 @@ out_unlock:
     goto out_put;
 }
 
-static inline int lab4fs_add_nodir(struct dentry *dentry, struct inode *inode)
+static inline int lab4fs_add_nondir(struct dentry *dentry, struct inode *inode)
 {
     int err = lab4fs_add_link(dentry, inode);
     if (!err) {
@@ -412,10 +412,6 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
 {
     struct inode *inode;
     ino_t ino;
-#ifdef CONFIG_LAB4FS_DEBUG
-    char filename[255];
-#endif
-
 	if (dentry->d_name.len > LAB4FS_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
 
@@ -424,14 +420,6 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
 	inode = NULL;
 	if (ino) {
 		inode = iget(dir->i_sb, ino);
-        if (is_my_test(dentry)) {
-#ifdef CONFIG_LAB4FS_DEBUG
-            memcpy(filename, dentry->d_name.name, dentry->d_name.len);
-            filename[dentry->d_name.len] = 0;
-#endif
-            LAB4DEBUG("file: %s, ino: %lu\n", filename, ino);
-            print_inode(inode);
-        }
 		if (!inode)
 			return ERR_PTR(-EACCES);
 	}
@@ -478,15 +466,30 @@ static int lab4fs_create(struct inode *dir,
 		inode->i_fop = &lab4fs_file_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
 		mark_inode_dirty(inode);
-		err = lab4fs_add_nodir(dentry, inode);
+		err = lab4fs_add_nondir(dentry, inode);
 	}
 	return err;
 
 }
 
+static int lab4fs_link(struct dentry *old_dentry, struct inode *dir,
+        struct dentry *dentry)
+{
+    struct inode *inode = old_dentry->d_inode;
+
+    if (inode->i_nlink >= LAB4FS_LINK_MAX)
+        return -EMLINK;
+    inode->i_ctime = CURRENT_TIME;
+    lab4fs_inc_count(inode);
+	atomic_inc(&inode->i_count);
+
+    return lab4fs_add_nondir(dentry, inode);
+}
+
 struct inode_operations lab4fs_dir_inode_operations = {
     .create     = lab4fs_create,
     .lookup     = lab4fs_lookup,
+    .link       = lab4fs_link,
 };
 
 struct file_operations lab4fs_dir_operations = {
