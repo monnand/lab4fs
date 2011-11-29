@@ -217,9 +217,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         goto out_fail;
 
     rwlock_init(&sbi->rwlock);
-    print_super(es);
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
-    LAB4DEBUG("Now loading root dir\n");
     root = iget(sb, sbi->s_root_inode);
     if (root == NULL) {
         err = -EIO;
