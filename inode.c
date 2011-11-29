@@ -372,6 +372,15 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
 
     if (depth == 0)
         goto out;
+
+#ifdef CONFIG_LAB4FS_DEBUG
+    if (depth > 1) {
+        LAB4DEBUG("We have to deal with indirect block.\n");
+        print_block_path(inode, iblock, offsets, depth);
+        LAB4DEBUG("Let's stop first and see what's going on.\n");
+        return -ENOSPC;
+    }
+#endif
 reread:
 	partial = lab4fs_get_branch(inode, depth, offsets, chain, &err);
 
