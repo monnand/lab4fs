@@ -312,7 +312,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
 
 #ifdef CONFIG_LAB4FS_DEBUG
     if (depth > 1) {
-        LAB4DEBUG("Indirect block alloc; we use block %lu to store addresses\n",
+        LAB4DEBUG("Indirect block alloc; we use block %u to store addresses\n",
                 block);
     }
 #endif
@@ -349,7 +349,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         n++;
 #ifdef CONFIG_LAB4FS_DEBUG
         if (depth > 1) {
-            LAB4DEBUG("Indirect block; we use block %lu to store data\n",
+            LAB4DEBUG("Indirect block; we use block %u to store data\n",
                     block);
         }
 #endif
@@ -398,6 +398,14 @@ reread:
 	/* Simplest case - block found, no allocation needed */
 	if (!partial) {
 got_it:
+#ifdef CONFIG_LAB4FS_DEBUG
+        if (depth > 1) {
+            LAB4DEBUG("We get the block %lu for inode %lu, it's %u on disk.\n",
+                    iblock, inode->i_ino,
+                    le32_to_cpu(chain[depth-1].key));
+            return -ENOSPC;
+        }
+#endif
 		map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
 		if (boundary)
 			set_buffer_boundary(bh_result);
