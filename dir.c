@@ -387,8 +387,22 @@ static inline int is_my_test(struct dentry *dentry)
             return 1;
     return 0;
 }
+
+#define printmemaddr(s, mem)    do {    \
+    LAB4DEBUG(#s ": %x\n", (s)->mem);   \
+} while(0)
+
+
+static void print_fops(struct file_operations *fop)
+{
+    printmemaddr(fop, read);
+    printmemaddr(fop, write);
+    printmemaddr(fop, aio_read);
+    printmemaddr(fop, aio_write);
+}
 #else
 #define is_my_test(dentry)  0
+#define print_fops(fop)
 #endif
 
 static struct dentry *lab4fs_lookup(struct inode *dir,
@@ -423,6 +437,8 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
                     (unsigned)inode->i_op, (unsigned)&simple_dir_inode_operations);
             LAB4DEBUG("and its i_fop: %x, should be %x\n",
                     (unsigned)inode->i_fop, (unsigned)&lab4fs_file_operations);
+            LAB4DEBUG("and more about its fops:\n");
+            print_fops(inode->fop);
 			return ERR_PTR(-EACCES);
         }
 #endif
