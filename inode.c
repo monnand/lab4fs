@@ -257,7 +257,8 @@ static __u32 lab4fs_alloc_data_block(struct inode *inode, __u32 perfered, long *
 
 #ifdef CONFIG_LAB4FS_DEBUG
     if (inode->i_ino == LAB4FS_ROOT_INO) {
-        LAB4DEBUG("Root need more data block, Here is the data bitmap:\n");
+        LAB4DEBUG("Root need more data block,"
+               " Here is the data bitmap before allication:\n");
         print_buffer_head(sbi->s_data_bitmap.bhs[0], 0, 8);
         LAB4DEBUG("END\n");
     }
