@@ -419,6 +419,10 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
 #ifdef CONFIG_LAB4FS_DEBUG
         if (is_my_test(dentry)) {
             print_inode(inode);
+            LAB4DEBUG("Now, lets see its i_op: %x, should be %x\n",
+                    (unsigned)inode->i_op, (unsigned)&simple_dir_inode_operations);
+            LAB4DEBUG("and its i_fop: %x, should be %x\n",
+                    (unsigned)inode->i_fop, (unsigned)&lab4fs_file_operations);
 			return ERR_PTR(-EACCES);
         }
 #endif
