@@ -32,6 +32,7 @@ static struct inode *lab4fs_alloc_inode(struct super_block *sb)
 	ei = (struct lab4fs_inode_info *)kmem_cache_alloc(lab4fs_inode_cachep, SLAB_KERNEL);
 	if (!ei)
 		return NULL;
+    memset(ei, 0, sizeof(*ei));
     ei->vfs_inode.i_sb = sb;
     ei->i_dir_start_lookup = 0;
     rwlock_init(&ei->rwlock);
