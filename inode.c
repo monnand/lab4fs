@@ -357,7 +357,7 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
 
 #ifdef CONFIG_LAB4FS_DEBUG
     if (create) {
-        LAB4DEBUG("We need to iget block %lu for inode %lu, create if necessary\n",
+        LAB4DEBUG("We need to get block %lu for inode %lu, create if necessary\n",
                 iblock, inode->i_ino);
     }
 #endif
@@ -367,6 +367,13 @@ reread:
 	/* Simplest case - block found, no allocation needed */
 	if (!partial) {
 got_it:
+#ifdef CONFIG_LAB4FS_DEBUG
+        if (create) {
+            LAB4DEBUG("We get the block %lu for inode %lu, it's %lu on disk.\n",
+                    iblock, inode->i_ino,
+                    le32_to_cpu(chain[depth-1].key);
+        }
+#endif
 		map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
 		if (boundary)
 			set_buffer_boundary(bh_result);
