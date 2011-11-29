@@ -188,6 +188,7 @@ got_it:
         LAB4DEBUG("from: %u; to %u\n", (unsigned)from, (unsigned)to);
         goto out_unlock;
     }
+    LAB4DEBUG("got a free slot: rec_len = %u\n", (unsigned)rec_len);
     err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
     if (err)
         goto out_unlock;
