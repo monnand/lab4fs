@@ -51,7 +51,8 @@
 #define LAB4FS_DEF_RESUID	0
 #define LAB4FS_DEF_RESGID	0
 
-#define lab4fs_max_size(x)	8192
+/* 7 direct blocks; 1 indirect block */
+#define lab4fs_max_size(x)	(7<<10 + (1024>>2) << 10)
 
 #define LAB4FS_NDIR_BLOCKS  7
 #define LAB4FS_IND_BLOCK    8
@@ -206,6 +207,7 @@ extern struct address_space_operations lab4fs_aops;
 extern struct file_operations lab4fs_dir_operations;
 extern struct inode_operations lab4fs_dir_inode_operations;
 extern struct file_operations lab4fs_file_operations;
+extern struct inode_operations lab4fs_file_inode_operations;
 
 void lab4fs_read_inode(struct inode *inode);
 int lab4fs_write_inode(struct inode *inode, int wait);
@@ -213,6 +215,8 @@ int lab4fs_sync_inode(struct inode *inode);
 void lab4fs_put_inode(struct inode *inode);
 struct inode *lab4fs_new_inode(struct inode *dir, int mode);
 
+int lab4fs_permission(struct inode *inode, int mask, struct nameidata *nd);
+int lab4fs_setattr(struct dentry *dentry, struct iattr *iattr)
 int lab4fs_add_link(struct dentry *dentry, struct inode *inode);
 struct lab4fs_dir_entry * lab4fs_find_entry (struct inode * dir,
 			struct dentry *dentry, struct page ** res_page);

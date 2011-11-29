@@ -1,5 +1,10 @@
 #include "lab4fs.h"
 
+struct inode_operations lab4fs_file_inode_operations = {
+    .setattr    = lab4fs_setattr,
+	.permission	= lab4fs_permission,
+};
+
 struct file_operations lab4fs_file_operations = {
 	.llseek		= generic_file_llseek,
 	.read		= generic_file_read,

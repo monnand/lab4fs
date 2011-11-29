@@ -154,7 +154,7 @@ void lab4fs_read_inode(struct inode *inode)
 
     if (S_ISREG(inode->i_mode)) {
         LAB4DEBUG("I got a file inode, ino: %lu\n", ino);
-		inode->i_op = &simple_dir_inode_operations;
+		inode->i_op = &lab4fs_file_inode_operations;
 		inode->i_fop = &lab4fs_file_operations;
         inode->i_mapping->a_ops = &lab4fs_aops;
     } else if (S_ISDIR(inode->i_mode)) {
@@ -544,6 +544,51 @@ fail:
 	make_bad_inode(inode);
 	iput(inode);
 	return ERR_PTR(err);
+}
+
+int lab4fs_setattr(struct dentry *dentry, struct iattr *iattr)
+{
+    struct inode *inode = dentry->d_inode;
+    int error;
+
+    error = inode_change_ok(inode, iattr);
+    if (error)
+        return error;
+	error = inode_setattr(inode, iattr);
+    return error;
+}
+
+int lab4fs_permission(struct inode *inode, int mask, struct nameidata *nd)
+{
+	int mode = inode->i_mode;
+	/* Nobody gets write access to a read-only fs */
+	if ((mask & MAY_WRITE) && IS_RDONLY(inode) &&
+	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
+	/* Nobody gets write access to an immutable file */
+	if ((mask & MAY_WRITE) && IS_IMMUTABLE(inode))
+	    return -EACCES;
+    /* Pervious two if-stmt seems nothing to do with our fs... */
+    /* if the current user owns this inode */
+	if (current->fsuid == inode->i_uid) {
+		mode >>= 6;
+	} else {
+        /* if the current user is in the group */
+		if (in_group_p(inode->i_gid))
+			mode >>= 3;
+	}
+	if ((mode & mask & S_IRWXO) == mask)
+		return 0;
+	/* Allowed to override Discretionary Access Control? */
+	if (!(mask & MAY_EXEC) ||
+	    (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode))
+		if (capable(CAP_DAC_OVERRIDE))
+			return 0;
+	/* Read and search granted if capable(CAP_DAC_READ_SEARCH) */
+	if (capable(CAP_DAC_READ_SEARCH) && ((mask == MAY_READ) ||
+	    (S_ISDIR(inode->i_mode) && !(mask & MAY_WRITE))))
+		return 0;
+
+	return -EACCES;
 }
 
 static int lab4fs_writepage(struct page *page, struct writeback_control *wbc)
