@@ -420,6 +420,11 @@ cleanup:
 			partial--;
 		}
 out:
+#ifdef CONFIG_LAB4FS_DEBUG
+        if (depth > 1) {
+            LAB4DEBUG("Safely returned\n");
+        }
+#endif
         return err;
     }
 
