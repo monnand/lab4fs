@@ -154,6 +154,49 @@ struct lab4fs_dir_entry {
 	char	name[LAB4FS_NAME_LEN];	/* File name */
 };
 
+/* Copy from kernel */
+int set_bit(int nr,long * addr)
+{
+    int mask, retval;
+
+    addr += nr >> 5;
+    mask = 1 << (nr & 0x1f);
+    retval = (mask & *addr) != 0;
+    *addr |= mask;
+    return retval;
+}
+
+int clear_bit(int nr, long * addr)
+{
+    int mask, retval;
+
+    addr += nr >> 5;
+    mask = 1 << (nr & 0x1f);
+    retval = (mask & *addr) != 0;
+    *addr &= ~mask;
+    return retval;
+}
+
+int test_bit(int nr, const unsigned long * addr)
+{
+    int mask;
+
+    addr += nr >> 5;
+    mask = 1 << (nr & 0x1f);
+    return ((mask & *addr) != 0); 
+}
+
+/* Well... Nothing but rename... */
+void bit_set(uint8_t *buf, uint32_t bit)
+{
+    set_bit((int)bit, (long *)buf);
+}
+
+int bit_test(uint8_t *buf, uint32_t bit)
+{
+    return test_bit((int)bit, (long *)buf);
+}
+
 int total_space(char *filename, unsigned long *nr_blks, unsigned long *blk_size)
 {
     struct stat fstat;
@@ -341,35 +384,11 @@ int write_inode_bitmap(int fd, struct lab4fs_sb_info *sb)
         return i;
     buf = malloc(sb->block_size);
     memset(buf, 0, sb->block_size); 
-    for (i = 0; i < sb->first_inode; i++) {
-        n = i >> 3;
-        offset = i % 8;
-        mask = MSB_MASK >> offset;
-        buf[n] = buf[n] | mask;
-    }
+    for (i = 0; i < sb->first_inode; i++)
+        bit_set(buf, i);
     i = write_blocks(fd, sb, sb->first_inode_bitmap_block, 1, buf);
     free(buf);
     return i;
-}
-
-void bit_set(uint8_t *buf, uint32_t bit)
-{
-    uint32_t n, offset;
-    uint8_t mask;
-    n = bit >> 3;
-    offset = bit % 8;
-    mask = MSB_MASK >> offset;
-    buf[n] |= mask;
-}
-
-int bit_test(uint8_t *buf, uint32_t bit)
-{
-    uint32_t n, offset;
-    uint8_t mask;
-    n = bit >> 3;
-    offset = bit % 8;
-    mask = MSB_MASK >> offset;
-    return buf[n] & mask;
 }
 
 void locate_inode_bit(struct lab4fs_sb_info *sb,
