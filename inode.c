@@ -231,6 +231,94 @@ no_block:
 	return p;
 }
 
+static __u32 lab4fs_alloc_data_block(struct inode *inode, __u32 perfered, long *err)
+{
+	struct super_block *sb = inode->i_sb;
+    struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
+    __u32 start = perfered - sbi->s_data_blocks;
+    __u32 found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, start, set);
+
+    if (found > sbi->s_data_bitmap.nr_valid_bits) {
+        found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, 0, set);
+        if (found > sbi->s_data_bitmap.nr_valid_bits)
+            goto no_space;
+        goto found_one_free;
+    }
+found_one_free:
+    found += sbi->s_data_blocks;
+    if (found >= sbi->s_blocks_count)
+        goto io_err;
+    write_lock(&sbi->rwlock);
+    sbi->s_free_data_blocks_count--;
+    write_unlock(&sbi->rwlock);
+
+    return found;
+io_err:
+    *err = -EIO;
+    return 0;
+no_space:
+    *err = -ENOSPC;
+    return 0;
+}
+
+static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
+        int *offsets, Indirect *chain, Indirect *partial, long *err)
+{
+    Indirect *end = chain + depth;
+    Indirect *p = partial;
+    int n = partial - chain;
+    __u32 block;
+    buffer_head *bh;
+
+
+    LAB4DEBUG("Allocating the %dth layer block\n", n);
+    block = lab4fs_alloc_data_block(inode, 0, err);
+    if (*err)
+        return p;
+    write_lock(&LAB4FS_I(inode)->rwlock);
+    p->key = cpu_to_le32(block);
+    *(p->p) = p->key;
+    if (p->bh == NULL)
+        mark_inode_dirty(inode);
+    else
+        mark_buffer_dirty(p->bh);
+    write_unlock(&LAB4FS_I(inode)->rwlock);
+    LAB4DEBUG("The %dth layer block is %u\n", n, block);
+    n++;
+    p++;
+
+    while (p < end) {
+        bh = sb_bread(sb, block);
+
+        if (!bh) {
+            *err = -EIO;
+            return p;
+        }
+
+		read_lock(&LAB4FS_I(inode)->rwlock);
+		add_chain(p + 1, bh, (__le32*)bh->b_data + offsets[n]);
+		read_unlock(&LAB4FS_I(inode)->rwlock);
+
+        LAB4DEBUG("Allocating the %dth layer block\n", n);
+        block = lab4fs_alloc_data_block(inode, 0, err);
+        if (*err)
+            return p;
+
+		write_lock(&LAB4FS_I(inode)->rwlock);
+        p->key = cpu_to_le32(block);
+        *(p->p) = p->key;
+        mark_buffer_dirty(p->bh);
+		write_unlock(&LAB4FS_I(inode)->rwlock);
+
+        LAB4DEBUG("The %dth layer block is %u\n", n, block);
+        p++;
+        n++;
+    }
+
+    *err = 0;
+    return p;
+}
+
 static int lab4fs_get_block(struct inode *inode, sector_t iblock,
         struct buffer_head *bh_result, int create)
 {
@@ -278,9 +366,11 @@ out:
 	if (err == -EAGAIN)
 		goto changed;
 
-    /* TODO find a way to create the block */
-    LAB4DEBUG("We cannot create a block now\n");
-    return -EIO;
+    LAB4DEBUG("We need to alloc block %u in file now.\n", iblock);
+    partial = lab4fs_alloc_branch(inode, depth, offsets, chain, partial, &err);
+    if (err)
+        return err;
+    goto got_it;
 
 changed:
 	while (partial > chain) {
@@ -413,7 +503,7 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 
 fail:
 	make_bad_inode(inode);
-//	iput(inode);
+	iput(inode);
 	return ERR_PTR(err);
 }
 
