@@ -296,7 +296,6 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     __u32 block;
     struct buffer_head *bh;
 	struct super_block *sb = inode->i_sb;
-    struct lab4fs_inode_info *ei = LAB4FS_I(inode);
     struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
 
 
