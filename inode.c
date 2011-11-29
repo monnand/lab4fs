@@ -28,7 +28,7 @@ void print_buffer_head(struct buffer_head *bh, int start, int len)
     __u8 *data;
     int i;
 
-    data = (__u32 *)(bh->b_data + (char *)start);
+    data = (__u8 *)(bh->b_data + start);
     LAB4DEBUG("Printing buffer head@%dB, size=%d: \n" KERN_INFO,
             start, len);
     for (i = 0; i < len; i++) {
