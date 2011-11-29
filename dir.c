@@ -151,7 +151,10 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
         while((char *)de <= kaddr) {
             if ((char *)de == dir_end) {
                 name_len = 0;
+                /*
                 rec_len = chunk_size;
+                */
+                rec_len = reclen;
                 de->rec_len = cpu_to_le16(chunk_size);
                 de->inode = 0;
                 goto got_it;
@@ -186,9 +189,9 @@ got_it:
     if (to > PAGE_CACHE_SIZE) {
         LAB4DEBUG("look! I want to write on %dth page, but will fail!\n", n);
         LAB4DEBUG("from: %u; to %u\n", (unsigned)from, (unsigned)to);
+        LAB4DEBUG("got a free slot: rec_len = %u\n", (unsigned)rec_len);
         goto out_unlock;
     }
-    LAB4DEBUG("got a free slot: rec_len = %u\n", (unsigned)rec_len);
     err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
     if (err)
         goto out_unlock;
