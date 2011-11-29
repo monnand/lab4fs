@@ -315,7 +315,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         LAB4DEBUG("Indirect block alloc; we use block %u to store addresses\n",
                 block);
         LAB4DEBUG("p->p = 0x%X; &i_data[7] = 0x%X\n",
-                (unsigned )((p-1)->p), (unsigned)(&ei->i_data[7]));
+                (unsigned )((p-1)->p), (unsigned)(&ei->i_block[7]));
         LAB4DEBUG("This block should be added into the end of i_block field:\n");
         print_inode(inode);
         LAB4DEBUG("Does it work?\n");
