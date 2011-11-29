@@ -183,6 +183,8 @@ static int lab4fs_block_to_path(struct inode *inode,
     int final = 0;
     int n = 0;
 
+    LAB4DEBUG("block %ld to path for inode %lu\n",
+            i_block, (unsigned long)inode->ino);
     if (i_block < 0) {
         LAB4ERROR("block %d < 0\n", (int)i_block);
         return 0;
