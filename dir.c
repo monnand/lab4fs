@@ -389,7 +389,7 @@ static inline int is_my_test(struct dentry *dentry)
 }
 
 #define printmemaddr(s, mem)    do {    \
-    LAB4DEBUG(#s ": %x\n", (unsigned)(s)->mem);   \
+    LAB4DEBUG(#mem ": %x\n", (unsigned)(s)->mem);   \
 } while(0)
 
 
@@ -439,7 +439,6 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
                     (unsigned)inode->i_fop, (unsigned)&lab4fs_file_operations);
             LAB4DEBUG("and more about its fops:\n");
             print_fops(inode->i_fop);
-			return ERR_PTR(-EACCES);
         }
 #endif
         LAB4DEBUG("Sorry, cannot proceed\n");
