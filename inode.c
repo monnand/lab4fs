@@ -314,6 +314,9 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     if (depth > 1) {
         LAB4DEBUG("Indirect block alloc; we use block %u to store addresses\n",
                 block);
+        LAB4DEBUG("This block should be added into the end of i_block field:\n");
+        print_inode(inode);
+        LAB4DEBUG("Does it work?\n");
     }
 #endif
     
@@ -351,6 +354,9 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
         if (depth > 1) {
             LAB4DEBUG("Indirect block; we use block %u to store data\n",
                     block);
+            LAB4DEBUG("Now let's see the inode again\n");
+            print_inode(inode);
+            LAB4DEBUG("Anything wrong?\n");
         }
 #endif
     }
@@ -490,7 +496,7 @@ static int lab4fs_update_inode(struct inode *inode, int do_sync)
 	if (do_sync) {
 		sync_dirty_buffer(bh);
 		if (buffer_req(bh) && !buffer_uptodate(bh)) {
-			printk ("IO error syncing ext2 inode [%s:%08lx]\n",
+			printk ("IO error syncing lab4fs inode [%s:%08lx]\n",
 				sb->s_id, (unsigned long) ino);
 			err = -EIO;
 		}
