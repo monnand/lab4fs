@@ -278,7 +278,7 @@ static int __init init_lab4fs_fs(void)
     memset(buf, 0, sizeof(buf));
     err = find_next_zero_bit(&buf, 4, 0);
     LAB4DEBUG("First 0 bit is %d\n", err);
-    buf[0] = 0x80;
+    buf[0] = 0x08;
     err = find_next_zero_bit(&buf, 4, 0);
     LAB4DEBUG("First 0 bit is %d\n", err);
     err = init_inodecache();
