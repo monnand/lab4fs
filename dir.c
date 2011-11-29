@@ -174,6 +174,7 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
         }
         unlock_page(page);
         lab4fs_put_page(page);
+        LAB4DEBUG("no space on %dth page. try next\n", n);
     }
 
     BUG();
@@ -182,6 +183,10 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
 got_it:
     from = (char *)de - (char *)page_address(page);
     to = from + rec_len;
+    if (to > PAGE_CACHE_SIZE) {
+        LAB4DEBUG("look! I want to write on %dth page, but will fail!\n", n);
+        goto out_unlock;
+    }
     err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
     if (err)
         goto out_unlock;
