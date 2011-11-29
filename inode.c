@@ -384,6 +384,7 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
     if (inode->i_ino == LAB4FS_ROOT_INO) {
         LAB4DEBUG("We need to get block %lu for ROOT, create: %d\n",
                 iblock, create);
+        print_inode(inode);
         print_block_path(inode, iblock, offsets, depth);
     } else if (create) {
         LAB4DEBUG("We need to get block %lu for inode %lu, create if necessary\n",
