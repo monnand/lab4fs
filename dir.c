@@ -405,7 +405,6 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
         LAB4DEBUG("Well... I got its inode...\n");
         print_inode(inode);
         LAB4DEBUG("Sorry, cannot proceed\n");
-        return ERR_PTR(-EACCES);
 		if (!inode)
 			return ERR_PTR(-EACCES);
 	}
