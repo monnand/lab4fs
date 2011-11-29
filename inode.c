@@ -28,7 +28,7 @@ void print_buffer_head(struct buffer_head *bh, int start, int len)
     __u8 *data;
     int i;
 
-    data = (__u32 *)(bh->b_data + start);
+    data = (__u32 *)(bh->b_data + (char *)start);
     LAB4DEBUG("Printing buffer head@%dB, size=%d: \n" KERN_INFO,
             start, len);
     for (i = 0; i < len; i++) {
@@ -267,7 +267,6 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     Indirect *end = chain + depth;
     Indirect *p = partial;
     int n = partial - chain;
-    struct super_block = inode->i_sb;
     __u32 block;
     struct buffer_head *bh;
 	struct super_block *sb = inode->i_sb;
