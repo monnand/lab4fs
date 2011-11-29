@@ -194,7 +194,7 @@ static Indirect *lab4fs_get_branch(struct inode *inode,
 				 int depth,
 				 int *offsets,
 				 Indirect chain[4],
-				 int *err)
+				 long *err)
 {
 	struct super_block *sb = inode->i_sb;
 	Indirect *p = chain;
@@ -323,7 +323,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
 static int lab4fs_get_block(struct inode *inode, sector_t iblock,
         struct buffer_head *bh_result, int create)
 {
-	int err = -EIO;
+	long err = -EIO;
 	int offsets[4];
 	Indirect chain[4];
 	Indirect *partial;
