@@ -403,6 +403,7 @@ got_it:
             LAB4DEBUG("We get the block %lu for inode %lu, it's %u on disk.\n",
                     iblock, inode->i_ino,
                     le32_to_cpu(chain[depth-1].key));
+            print_inode(inode);
         }
 #endif
 		map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
