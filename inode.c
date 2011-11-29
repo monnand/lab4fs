@@ -179,8 +179,15 @@ static int lab4fs_block_to_path(struct inode *inode,
     int ptrs = LAB4FS_ADDR_PER_BLOCK(inode->i_sb);
     const long direct_blocks = LAB4FS_NDIR_BLOCKS;
     const long indirect_blocks = ptrs;
+    /*
+    struct lab4fs_sb_info *sbi = LAB4FS_SB(inode->i_sb);
+    */
     int final = 0;
     int n = 0;
+
+    LAB4DEBUG("Trying to find offsets for block %d in inode %lu\n",
+            i_block, inode->i_ino);
+    LAB4DEBUG("There are %d pointers in one block\n", ptrs);
     if (i_block < 0) {
         LAB4ERROR("block %d < 0\n", (int)i_block);
         return 0;
@@ -214,6 +221,8 @@ static Indirect *lab4fs_get_branch(struct inode *inode,
 
     /* First layer index; NULL for bh member */
 	add_chain (chain, NULL, LAB4FS_I(inode)->i_block + *offsets);
+    if (!p->key)
+        goto no_block;
  	while (--depth) {
         LAB4DEBUG("Read fs block %u\n", le32_to_cpu(p->key));
 		bh = sb_bread(sb, le32_to_cpu(p->key));
