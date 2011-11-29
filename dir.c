@@ -378,6 +378,19 @@ ino_t lab4fs_inode_by_name(struct inode *dir, struct dentry *dentry)
     return res;
 }
 
+#ifdef CONFIG_LAB4FS_DEBUG
+
+static inline int is_my_test(struct dentry *dentry)
+{
+    if (dentry->d_name.len == 1)
+        if (!strcmp(dentry->d_name.name, "b"))
+            return 1;
+    return 0;
+}
+#else
+#define is_my_test(dentry)  0
+#endif
+
 static struct dentry *lab4fs_lookup(struct inode *dir,
         struct dentry *dentry,
         struct nameidata *nd)
@@ -403,7 +416,12 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
 	if (ino) {
 		inode = iget(dir->i_sb, ino);
         LAB4DEBUG("Well... I got its inode...\n");
-        print_inode(inode);
+#ifdef CONFIG_LAB4FS_DEBUG
+        if (is_my_test(dentry)) {
+            print_inode(inode);
+			return ERR_PTR(-EACCES);
+        }
+#endif
         LAB4DEBUG("Sorry, cannot proceed\n");
 		if (!inode)
 			return ERR_PTR(-EACCES);
