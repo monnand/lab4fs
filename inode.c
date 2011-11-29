@@ -239,7 +239,7 @@ static __u32 lab4fs_alloc_data_block(struct inode *inode, __u32 perfered, long *
     __u32 found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, start, 1);
 
     if (found > sbi->s_data_bitmap.nr_valid_bits) {
-        found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, 0, set);
+        found = bitmap_find_next_zero_bit(&sbi->s_data_bitmap, 0, 1);
         if (found > sbi->s_data_bitmap.nr_valid_bits)
             goto no_space;
         goto found_one_free;
@@ -270,6 +270,7 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     struct super_block = inode->i_sb;
     __u32 block;
     struct buffer_head *bh;
+	struct super_block *sb = inode->i_sb;
 
 
     LAB4DEBUG("Allocating the %dth layer block\n", n);
@@ -365,7 +366,7 @@ out:
 	if (err == -EAGAIN)
 		goto changed;
 
-    LAB4DEBUG("We need to alloc block %u in file now.\n", iblock);
+    LAB4DEBUG("We need to alloc block %lu in file now.\n", iblock);
     partial = lab4fs_alloc_branch(inode, depth, offsets, chain, partial, &err);
     if (err)
         return err;
@@ -397,7 +398,7 @@ static int lab4fs_update_inode(struct inode *inode, int do_sync)
     if (IS_ERR(raw_inode))
         return -EIO;
 
-    LAB4DEBUG("update inode: %u\n", inode->i_ino);
+    LAB4DEBUG("update inode: %lu\n", inode->i_ino);
     print_inode(inode);
     raw_inode->i_mode = cpu_to_le16(inode->i_mode);
     raw_inode->i_uid = cpu_to_le32(uid);
@@ -472,8 +473,6 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
 
     if (ino >= sbi->s_inodes_count || ino < sbi->s_first_ino) {
         err = -ENOSPC;
-        LAB4DEBUG("WTF?! No space: ino: %u, nr_inodes: %u; first_ino: %u\n",
-                ino, sbi->s_inodes_count, sbi->s_first_ino);
         goto fail;
     }
 
