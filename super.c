@@ -40,6 +40,7 @@ static struct inode *lab4fs_alloc_inode(struct super_block *sb)
 
 static void lab4fs_destroy_inode(struct inode *inode)
 {
+    LAB4DEBUG("destroy inode %u\n", (unsigned)inode->i_ino);
 	kmem_cache_free(lab4fs_inode_cachep, LAB4FS_I(inode));
 }
 
