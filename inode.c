@@ -310,6 +310,13 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
     n++;
     p++;
 
+#ifdef CONFIG_LAB4FS_DEBUG
+    if (depth > 1) {
+        LAB4DEBUG("Indirect block alloc; we use block %lu to store addresses\n",
+                block);
+    }
+#endif
+    
     while (p < end) {
         bh = sb_bread(sb, block);
 
@@ -340,6 +347,12 @@ static Indirect *lab4fs_alloc_branch(struct inode *inode, int depth,
 
         p++;
         n++;
+#ifdef CONFIG_LAB4FS_DEBUG
+        if (depth > 1) {
+            LAB4DEBUG("Indirect block; we use block %lu to store data\n",
+                    block);
+        }
+#endif
     }
 
     *err = 0;
@@ -377,8 +390,6 @@ static int lab4fs_get_block(struct inode *inode, sector_t iblock,
     if (depth > 1) {
         LAB4DEBUG("We have to deal with indirect block.\n");
         print_block_path(inode, iblock, offsets, depth);
-        LAB4DEBUG("Let's stop first and see what's going on.\n");
-        return -ENOSPC;
     }
 #endif
 reread:
