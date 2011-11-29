@@ -190,6 +190,7 @@ got_it:
     if (to > PAGE_CACHE_SIZE) {
         char filename[255];
         memcpy(filename, name, name_len);
+        filename[name_len] = 0;
         LAB4DEBUG("look! I want to write on %dth page on file %s, but will fail!\n", n, filename);
         LAB4DEBUG("from: %u; to %u\n", (unsigned)from, (unsigned)to);
         LAB4DEBUG("got a free slot: rec_len = %u\n", (unsigned)rec_len);

@@ -449,6 +449,8 @@ static int lab4fs_update_inode(struct inode *inode, int do_sync)
     LAB4DEBUG("update inode: %lu\n", inode->i_ino);
     print_inode(inode);
     */
+
+    write_lock(&ei->rwlock);
     raw_inode->i_mode = cpu_to_le16(inode->i_mode);
     raw_inode->i_uid = cpu_to_le32(uid);
     raw_inode->i_gid = cpu_to_le32(gid);
@@ -465,6 +467,7 @@ static int lab4fs_update_inode(struct inode *inode, int do_sync)
 		raw_inode->i_dir_acl = cpu_to_le32(ei->i_dir_acl);
 	for (n = 0; n < LAB4FS_N_BLOCKS; n++)
 		raw_inode->i_block[n] = ei->i_block[n];
+    write_unlock(&ei->rwlock);
 	mark_buffer_dirty(bh);
 	if (do_sync) {
 		sync_dirty_buffer(bh);
