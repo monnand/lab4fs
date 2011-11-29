@@ -445,8 +445,10 @@ static int lab4fs_update_inode(struct inode *inode, int do_sync)
     if (IS_ERR(raw_inode))
         return -EIO;
 
+    /*
     LAB4DEBUG("update inode: %lu\n", inode->i_ino);
     print_inode(inode);
+    */
     raw_inode->i_mode = cpu_to_le16(inode->i_mode);
     raw_inode->i_uid = cpu_to_le32(uid);
     raw_inode->i_gid = cpu_to_le32(gid);
