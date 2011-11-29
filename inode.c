@@ -196,6 +196,7 @@ static Indirect *lab4fs_get_branch(struct inode *inode,
 				 Indirect chain[4],
 				 long *err)
 {
+    do_generic_mapping_read
 	struct super_block *sb = inode->i_sb;
 	Indirect *p = chain;
 	struct buffer_head *bh;

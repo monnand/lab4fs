@@ -384,10 +384,18 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
 {
     struct inode *inode;
     ino_t ino;
+#ifdef CONFIG_LAB4FS_DEBUG
+    char filename[255];
+#endif
 
 	if (dentry->d_name.len > LAB4FS_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
 
+#ifdef CONFIG_LAB4FS_DEBUG
+    memcpy(filename, dentry->d_name.name, dentry->d_name.len);
+    filename[dentry->d_name.len] = 0;
+    LAB4DEBUG("I was asked to look up file: %s\n", filename);
+#endif
 	ino = lab4fs_inode_by_name(dir, dentry);
 	inode = NULL;
 	if (ino) {
