@@ -438,7 +438,7 @@ static struct dentry *lab4fs_lookup(struct inode *dir,
             LAB4DEBUG("and its i_fop: %x, should be %x\n",
                     (unsigned)inode->i_fop, (unsigned)&lab4fs_file_operations);
             LAB4DEBUG("and more about its fops:\n");
-            print_fops(inode->fop);
+            print_fops(inode->i_fop);
 			return ERR_PTR(-EACCES);
         }
 #endif
