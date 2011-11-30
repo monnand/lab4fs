@@ -65,38 +65,6 @@ int lab4fs_statfs(struct super_block *sb, struct kstatfs *buf)
     return 0;
 }
 
-static void lab4fs_free_inode(struct inode *inode)
-{
-    struct lab4fs_inode_info *ei = LAB4FS_I(inode);
-    struct super_block *sb = inode->i_sb;
-    struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
-	unsigned long ino;
-
-    ino = inode->i_ino;
-	clear_inode (inode);
-    LAB4DEBUG("clear %luth bit in inode bitmap\n", ino);
-    write_lock(&sbi->rwlock);
-    bitmap_clear_bit(&sbi->s_inode_bitmap, ino);
-    write_unlock(&sbi->rwlock);
-}
-
-void lab4fs_delete_inode (struct inode * inode)
-{
-    struct lab4fs_inode_info *ei;
-    if (is_bad_inode(inode))
-        goto no_delete;
-
-    ei = LAB4FS_I(inode);
-    ei->i_dtime = get_seconds();
-	mark_inode_dirty(inode);
-	lab4fs_update_inode(inode, inode_needs_sync(inode));
-	inode->i_size = 0;
-    lab4fs_free_inode (inode);
-    return;
-no_delete:
-	clear_inode(inode);	/* We must guarantee clearing of inode... */
-}
-
 struct super_operations lab4fs_super_ops = {
     .alloc_inode    = lab4fs_alloc_inode,
 	.delete_inode   = lab4fs_delete_inode,

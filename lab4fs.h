@@ -214,7 +214,7 @@ extern struct inode_operations lab4fs_file_inode_operations;
 void lab4fs_read_inode(struct inode *inode);
 int lab4fs_write_inode(struct inode *inode, int wait);
 int lab4fs_sync_inode(struct inode *inode);
-void lab4fs_put_inode(struct inode *inode);
+void lab4fs_delete_inode (struct inode * inode);
 struct inode *lab4fs_new_inode(struct inode *dir, int mode);
 
 int lab4fs_permission(struct inode *inode, int mask, struct nameidata *nd);
