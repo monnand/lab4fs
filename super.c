@@ -224,7 +224,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     LAB4DEBUG("I can get the root inode\n");
     print_inode(root);
     LAB4DEBUG("END\n");
-    return -ENOMEM;
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
         iput(root);
