@@ -153,7 +153,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     }
 
     es = (struct lab4fs_super_block *) (((char *)bh->b_data) + offset);
-    sbi->s_sb = es;
     sb->s_magic = le32_to_cpu(es->s_magic);
     if (sb->s_magic != LAB4FS_SUPER_MAGIC) {
         if (!silent)
@@ -209,6 +208,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     sbi->s_data_bitmap.nr_valid_bits = le32_to_cpu(es->s_blocks_count) 
         - le32_to_cpu(es->s_data_blocks);
 
+    rwlock_init(&sbi->rwlock);
     sb->s_op = &lab4fs_super_ops;
 
     err = bitmap_setup(&sbi->s_inode_bitmap, sb, le32_to_cpu(es->s_inode_bitmap));
@@ -218,13 +218,12 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     if (err)
         goto out_fail;
 
-    rwlock_init(&sbi->rwlock);
     sbi->s_root_inode = le32_to_cpu(es->s_root_inode);
     root = iget(sb, sbi->s_root_inode);
-    if (root == NULL) {
-        err = -EIO;
-        goto failed_mount;
-    }
+    LAB4DEBUG("I can get the root inode\n");
+    print_inode(root);
+    LAB4DEBUG("END\n");
+    return -ENOMEM;
     sb->s_root = d_alloc_root(root);
     if (!sb->s_root) {
         iput(root);
