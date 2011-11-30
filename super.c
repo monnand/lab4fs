@@ -32,7 +32,6 @@ static struct inode *lab4fs_alloc_inode(struct super_block *sb)
 	ei = (struct lab4fs_inode_info *)kmem_cache_alloc(lab4fs_inode_cachep, SLAB_KERNEL);
 	if (!ei)
 		return NULL;
-    memset(ei, 0, sizeof(*ei));
     ei->vfs_inode.i_sb = sb;
     ei->i_dir_start_lookup = 0;
     rwlock_init(&ei->rwlock);
@@ -225,9 +224,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     LAB4DEBUG("I can get the root inode\n");
     print_inode(root);
     LAB4DEBUG("END\n");
-    /*
     sb->s_root = d_alloc_root(root);
-    */
+    /*
 	if (root) {
 		static const struct qstr name = { .name = "/", .len = 1 };
 		res = d_alloc(NULL, &name);
@@ -244,6 +242,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		}
 	}
     sb->s_root = res;
+    */
     if (!sb->s_root) {
         iput(root);
         kfree(sbi);
