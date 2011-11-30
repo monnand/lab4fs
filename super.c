@@ -72,7 +72,7 @@ static void lab4fs_free_inode(struct inode *inode)
     struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
 	unsigned long ino;
 
-    ino = inode->i_ino
+    ino = inode->i_ino;
 	clear_inode (inode);
     LAB4DEBUG("clear %luth bit in inode bitmap\n", ino);
     write_lock(&sbi->rwlock);
