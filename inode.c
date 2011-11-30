@@ -50,8 +50,6 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     __u32 block, offset;
 
     *p = NULL;
-    LAB4DEBUG("ready to get the raw inode, sb: 0x%X; sbi: 0x%X; s_sb: 0x%X\n",
-            (unsigned)sb, (unsigned)sbi, (unsigned)sbi->s_sb);
     if ((ino != LAB4FS_ROOT_INO && ino < LAB4FS_FIRST_INO(sb)) ||
             ino > le32_to_cpu(sbi->s_sb->s_inodes_count))
         goto Einval;
@@ -59,8 +57,6 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     offset = ino % sbi->s_inode_size;
     block += sbi->s_inode_table;
 
-    LAB4DEBUG("I will get inode %u at block %u offset %u\n", 
-            (unsigned)ino, (unsigned)block, (unsigned)offset);
 	if (!(bh = sb_bread(sb, block)))
         goto Eio;
     *p = bh;
@@ -559,6 +555,8 @@ struct inode *lab4fs_new_inode(struct inode *dir, int mode)
     }
     read_unlock(&sbi->rwlock);
 
+    LAB4DEBUG("create a new inode. inode bitmap:\n");
+    print_buffer_head(sbi->s_inode_bitmap.bhs[0], 0, 12);
     ino = bitmap_find_next_zero_bit(&sbi->s_inode_bitmap, sbi->s_first_ino, 1);
 
     if (ino >= sbi->s_inodes_count || ino < sbi->s_first_ino) {
