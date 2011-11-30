@@ -121,7 +121,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     struct inode *root;
     int hblock;
     int err = 0;
-	struct dentry *res = NULL;
 
     sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
     if (!sbi)
@@ -225,24 +224,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     print_inode(root);
     LAB4DEBUG("END\n");
     sb->s_root = d_alloc_root(root);
-    /*
-	if (root) {
-		static const struct qstr name = { .name = "/", .len = 1 };
-		res = d_alloc(NULL, &name);
-		if (res) {
-			res->d_sb = root->i_sb;
-			res->d_parent = res;
-            if (!list_empty(&res->d_alias))
-                LAB4DEBUG("emtpy list for res\n");
-            INIT_LIST_HEAD(&root->i_dentry);
-            list_add(&res->d_alias, &root->i_dentry);
-            LAB4DEBUG("OK\n");
-            return -ENOMEM;
-			d_instantiate(res, root);
-		}
-	}
-    sb->s_root = res;
-    */
     if (!sb->s_root) {
         iput(root);
         kfree(sbi);
