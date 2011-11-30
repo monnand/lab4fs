@@ -46,21 +46,22 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
         ino_t ino, struct buffer_head **p)
 {
     struct buffer_head *bh;
+    struct lab4fs_sb_info *sbi = LAB4FS_SB(sb);
     __u32 block, offset;
 
     *p = NULL;
-    LAB4DEBUG("ready to get the raw inode, sb: 0x%X\n",
-            (unsigned)sb);
+    LAB4DEBUG("ready to get the raw inode, sb: 0x%X; sbi: 0x%X\n",
+            (unsigned)sb, (unsigned)sbi);
+    goto Eio;
     if ((ino != LAB4FS_ROOT_INO && ino < LAB4FS_FIRST_INO(sb)) ||
             ino > le32_to_cpu(LAB4FS_SB(sb)->s_sb->s_inodes_count))
         goto Einval;
-    block = ino / LAB4FS_INODE_SIZE(sb);
-    offset = ino % LAB4FS_INODE_SIZE(sb);
-    block += LAB4FS_SB(sb)->s_inode_table;
+    block = ino >> sbi->s_log_inode_size;
+    offset = ino % sbi->s_inode_size;
+    block += sbi->s_inode_table;
 
     LAB4DEBUG("I will get inode %u at block %u offset %u\n", 
             (unsigned)ino, (unsigned)block, (unsigned)offset);
-    goto Eio;
 	if (!(bh = sb_bread(sb, block)))
         goto Eio;
     *p = bh;
