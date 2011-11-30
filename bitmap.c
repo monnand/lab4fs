@@ -44,7 +44,7 @@ void bitmap_set_bit(struct lab4fs_bitmap *bitmap, int nr)
         return;
     write_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
-    offset = n % bitmap->nr_bits_per_block;
+    offset = nr % bitmap->nr_bits_per_block;
     data = bitmap->bhs[n]->b_data;
     set_bit(offset, data);
     mark_buffer_dirty(bitmap->bhs[n]);
@@ -60,7 +60,7 @@ int bitmap_test_and_set_bit(struct lab4fs_bitmap *bitmap, int nr)
         return -1;
     write_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
-    offset = n % bitmap->nr_bits_per_block;
+    offset = nr % bitmap->nr_bits_per_block;
     data = bitmap->bhs[n]->b_data;
     ret = test_and_set_bit(offset, data);
     if (!ret)
@@ -77,7 +77,7 @@ void bitmap_clear_bit(struct lab4fs_bitmap *bitmap, int nr)
         return;
     write_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
-    offset = n % bitmap->nr_bits_per_block;
+    offset = nr % bitmap->nr_bits_per_block;
     data = bitmap->bhs[n]->b_data;
     clear_bit(offset, data);
     mark_buffer_dirty(bitmap->bhs[n]);
@@ -93,7 +93,7 @@ int bitmap_test_and_clear_bit(struct lab4fs_bitmap *bitmap, int nr)
         return -1;
     write_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
-    offset = n % bitmap->nr_bits_per_block;
+    offset = nr % bitmap->nr_bits_per_block;
     data = bitmap->bhs[n]->b_data;
     ret = test_and_clear_bit(offset, data);
     if (ret)
@@ -111,7 +111,7 @@ int bitmap_test_bit(struct lab4fs_bitmap *bitmap, int nr)
         return -1;
     read_lock(&bitmap->rwlock);
     n = nr >> bitmap->log_nr_bits_per_block;
-    offset = n % bitmap->nr_bits_per_block;
+    offset = nr % bitmap->nr_bits_per_block;
     data = bitmap->bhs[n]->b_data;
     ret = test_bit(offset, data);
     read_unlock(&bitmap->rwlock);
