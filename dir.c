@@ -511,12 +511,64 @@ static int lab4fs_rmdir(struct inode *dir, struct dentry *dentry)
     return err;
 }
 
+int lab4fs_delete_entry (struct lab4fs_dir_entry *dir, struct page * page )
+{
+    struct address_space *mapping = page->mapping;
+	struct inode *inode = mapping->host;
+	char *kaddr = page_address(page);
+	unsigned from = ((char*)dir - kaddr) & ~(lab4fs_chunk_size(inode)-1);
+	unsigned to = ((char*)dir - kaddr) + le16_to_cpu(dir->rec_len);
+
+    lab4fs_dir_entry *pde = NULL;
+    lab4fs_dir_entry *de = (lab4fs_dir_entry *)(kaddr + from);
+
+    int err;
+
+    while((char *)de < (char *)dir) {
+        if (de->rec_len == 0) {
+            LAB4ERROR("delete entry: 0-length dir entry\n");
+            err = -EIO;
+            goto out;
+        }
+        pde = de;
+        de = ext2_next_entry(de);
+    }
+
+    if (pde)
+        from = (char *)pde - (char *)page_address(page);
+
+    lock_page(page);
+	err = mapping->a_ops->prepare_write(NULL, page, from, to);
+	if (err)
+		BUG();
+	if (pde)
+		pde->rec_len = cpu_to_le16(to-from);
+	dir->inode = 0;
+	err = ext2_commit_chunk(page, from, to);
+	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+	mark_inode_dirty(inode);
+out:
+    lab4fs_put_page(page);
+    return err;
+}
+
 static int lab4fs_unlink(struct inode * dir, struct dentry *dentry)
 {
     struct inode *inode = dentry->d_inode;
+    struct lab4fs_dir_entry *de;
+    struct page *page;
     int err = -EACCES;
 
     LAB4DEBUG("unlink: inode-%u\n", (unsigned)inode->i_ino);
+    de = lab4fs_find_entry(dir, dentry, &page);
+    if (!de)
+        goto out;
+    err = lab4fs_delete_entry(de, page);
+    if (err)
+        goto out;
+    inode->i_ctime = dir->i_ctime;
+    lab4fs_dec_count(inode);
+out:
     return err;
 }
 
