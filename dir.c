@@ -515,6 +515,7 @@ struct inode_operations lab4fs_dir_inode_operations = {
     .create     = lab4fs_create,
     .lookup     = lab4fs_lookup,
     .link       = lab4fs_link,
+    .rmdir      = lab4fs_rmdir,
 };
 
 struct file_operations lab4fs_dir_operations = {
