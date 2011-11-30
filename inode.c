@@ -52,7 +52,6 @@ static struct lab4fs_inode *lab4fs_get_inode(struct super_block *sb,
     *p = NULL;
     LAB4DEBUG("ready to get the raw inode, sb: 0x%X; sbi: 0x%X\n",
             (unsigned)sb, (unsigned)sbi);
-    goto Eio;
     if ((ino != LAB4FS_ROOT_INO && ino < LAB4FS_FIRST_INO(sb)) ||
             ino > le32_to_cpu(LAB4FS_SB(sb)->s_sb->s_inodes_count))
         goto Einval;

@@ -161,6 +161,7 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
         goto failed_mount;
     }
 
+    sbi->s_sb = es;
     blocksize = le32_to_cpu(es->s_block_size);
     hblock = bdev_hardsect_size(sb->s_bdev);
     if (sb->s_blocksize != blocksize) {
