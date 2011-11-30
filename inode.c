@@ -492,10 +492,13 @@ static void lab4fs_free_inode(struct inode *inode)
 
     ino = inode->i_ino;
 	clear_inode (inode);
-    LAB4DEBUG("clear %luth bit in inode bitmap\n", ino);
+    LAB4DEBUG("clear %luth bit in inode bitmap. Before clear:\n", ino);
+    print_buffer_head(sbi->s_inode_bitmap.bhs[0], 0, 12);
     write_lock(&sbi->rwlock);
     bitmap_clear_bit(&sbi->s_inode_bitmap, ino);
     write_unlock(&sbi->rwlock);
+    LAB4DEBUG("clear %luth bit in inode bitmap. After clear:\n", ino);
+    print_buffer_head(sbi->s_inode_bitmap.bhs[0], 0, 12);
 }
 
 void lab4fs_delete_inode (struct inode * inode)
