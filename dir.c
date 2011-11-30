@@ -502,6 +502,15 @@ static int lab4fs_link(struct dentry *old_dentry, struct inode *dir,
     return lab4fs_add_nondir(dentry, inode);
 }
 
+static int lab4fs_rmdir(struct inode *dir, struct dentry *dentry)
+{
+    struct inode *inode = dentry->d_inode;
+    int err = -EACCES;
+
+    LAB4DEBUG("rmdir: inode-%u\n", (unsigned)inode->i_ino);
+    return err;
+}
+
 struct inode_operations lab4fs_dir_inode_operations = {
     .create     = lab4fs_create,
     .lookup     = lab4fs_lookup,
