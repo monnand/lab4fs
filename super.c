@@ -237,6 +237,8 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
             if (!list_empty(&res->d_alias))
                 LAB4DEBUG("emtpy list for res\n");
             LAB4DEBUG("OK\n");
+            if (inode)
+                list_add(&res->d_alias, &root->i_dentry);
             return -ENOMEM;
 			d_instantiate(res, root);
 		}
