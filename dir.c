@@ -519,8 +519,8 @@ int lab4fs_delete_entry (struct lab4fs_dir_entry *dir, struct page * page )
 	unsigned from = ((char*)dir - kaddr) & ~(lab4fs_chunk_size(inode)-1);
 	unsigned to = ((char*)dir - kaddr) + le16_to_cpu(dir->rec_len);
 
-    lab4fs_dir_entry *pde = NULL;
-    lab4fs_dir_entry *de = (lab4fs_dir_entry *)(kaddr + from);
+    struct lab4fs_dir_entry *pde = NULL;
+    struct lab4fs_dir_entry *de = (lab4fs_dir_entry *)(kaddr + from);
 
     int err;
 
