@@ -178,7 +178,6 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
         }
         unlock_page(page);
         lab4fs_put_page(page);
-        LAB4DEBUG("no space on %dth page. try next\n", n);
     }
 
     BUG();
@@ -187,15 +186,6 @@ int lab4fs_add_link (struct dentry *dentry, struct inode *inode)
 got_it:
     from = (char *)de - (char *)page_address(page);
     to = from + rec_len;
-    if (to > PAGE_CACHE_SIZE) {
-        char filename[255];
-        memcpy(filename, name, name_len);
-        filename[name_len] = 0;
-        LAB4DEBUG("look! I want to write on %dth page on file %s, but will fail!\n", n, filename);
-        LAB4DEBUG("from: %u; to %u\n", (unsigned)from, (unsigned)to);
-        LAB4DEBUG("got a free slot: rec_len = %u\n", (unsigned)rec_len);
-        goto out_unlock;
-    }
     err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
     if (err)
         goto out_unlock;
