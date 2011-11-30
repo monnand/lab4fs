@@ -511,10 +511,20 @@ static int lab4fs_rmdir(struct inode *dir, struct dentry *dentry)
     return err;
 }
 
+static int lab4fs_unlink(struct inode * dir, struct dentry *dentry)
+{
+    struct inode *inode = dentry->d_inode;
+    int err = -EACCES;
+
+    LAB4DEBUG("unlink: inode-%u\n", (unsigned)inode->i_ino);
+    return err;
+}
+
 struct inode_operations lab4fs_dir_inode_operations = {
     .create     = lab4fs_create,
     .lookup     = lab4fs_lookup,
     .link       = lab4fs_link,
+    .unlink     = lab4fs_unlink,
     .rmdir      = lab4fs_rmdir,
 };
 
