@@ -531,7 +531,7 @@ int lab4fs_delete_entry (struct lab4fs_dir_entry *dir, struct page * page )
             goto out;
         }
         pde = de;
-        de = ext2_next_entry(de);
+        de = lab4fs_next_entry(de);
     }
 
     if (pde)
@@ -544,7 +544,7 @@ int lab4fs_delete_entry (struct lab4fs_dir_entry *dir, struct page * page )
 	if (pde)
 		pde->rec_len = cpu_to_le16(to-from);
 	dir->inode = 0;
-	err = ext2_commit_chunk(page, from, to);
+	err = lab4fs_commit_chunk(page, from, to);
 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
 	mark_inode_dirty(inode);
 out:
