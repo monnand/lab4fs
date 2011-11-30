@@ -225,7 +225,6 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
     LAB4DEBUG("I can get the root inode\n");
     print_inode(root);
     LAB4DEBUG("END\n");
-    return -ENOMEM;
     /*
     sb->s_root = d_alloc_root(root);
     */
@@ -235,6 +234,10 @@ static int lab4fs_fill_super(struct super_block * sb, void * data, int silent)
 		if (res) {
 			res->d_sb = root->i_sb;
 			res->d_parent = res;
+            if (!list_empty(&res->d_alias))
+                LAB4DEBUG("emtpy list for res\n");
+            LAB4DEBUG("OK\n");
+            return -ENOMEM;
 			d_instantiate(res, root);
 		}
 	}
